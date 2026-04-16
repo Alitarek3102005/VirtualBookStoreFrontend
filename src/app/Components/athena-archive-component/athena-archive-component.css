@@ -1,31 +1,5 @@
-/* =========================================
-   CORE ARCHITECTURE & VARIABLES
-   ========================================= */
-:root {
-  --bg: #030303;
-  --text: #E5E5E5;
-  --accent: #B01E23;
-  --accent-dim: rgba(176, 30, 35, 0.15);
-  --font-display: 'Oswald', sans-serif;
-  --font-serif: 'Cormorant Garamond', serif;
-  --font-mono: 'Space Grotesk', sans-serif;
-}
 
-* { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
 
-html { scroll-behavior: auto; }
-
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: var(--font-mono);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* =========================================
-   CUSTOM PHYSICS CURSOR
-   ========================================= */
 .cursor-dot {
   position: fixed; width: 6px; height: 6px; background: white;
   border-radius: 50%; pointer-events: none; z-index: 10000;
@@ -40,9 +14,6 @@ body {
 .cursor-ring.hovering { width: 60px; height: 60px; border-color: var(--accent); background: rgba(176,30,35,0.08); }
 .dragging .cursor-ring { width: 80px; height: 80px; border-color: var(--accent); background: rgba(176, 30, 35, 0.1); }
 
-/* =========================================
-   CINEMATIC PRELOADER
-   ========================================= */
 .preloader {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   background: #000; z-index: 9000; display: flex; flex-direction: column;
@@ -63,9 +34,6 @@ body {
 .loader-bar-wrap { width: 300px; height: 1px; background: #222; margin-top: 0.75rem; position: relative; }
 .loader-bar { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--accent); }
 
-/* =========================================
-   NAVIGATION
-   ========================================= */
 nav {
   position: fixed; top: 0; left: 0; width: 100%; padding: 2rem 5%;
   display: flex; justify-content: space-between; align-items: center;
@@ -81,9 +49,6 @@ nav {
 .nav-links a:hover { opacity: 1; }
 .nav-meta { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; }
 
-/* =========================================
-   SECTION 1: HERO
-   ========================================= */
 .hero {
   height: 100vh; display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
@@ -127,9 +92,7 @@ nav {
 }
 .char { display: inline-block; opacity: 0; transform: translateY(100px) rotateX(-90deg); }
 
-/* =========================================
-   MARQUEE TICKER
-   ========================================= */
+
 .marquee-section {
   border-top: 1px solid rgba(255,255,255,0.08);
   border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -147,9 +110,6 @@ nav {
 .marquee-item span.dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; display: inline-block; }
 @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-/* =========================================
-   SECTION 2: CAROUSEL
-   ========================================= */
 .realm-section {
   height: 100vh; width: 100vw; background: #000; position: relative;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -194,9 +154,6 @@ nav {
   white-space: nowrap;
 }
 
-/* =========================================
-   SECTION 3: EDITORIAL
-   ========================================= */
 .editorial {
   padding: 15rem 5%; background: var(--text); color: var(--bg);
   display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
@@ -207,9 +164,6 @@ nav {
 .ed-img { width: 100%; height: 80vh; position: relative; overflow: hidden; }
 .ed-img img { width: 100%; height: 130%; object-fit: cover; }
 
-/* =========================================
-   SECTION 4: STATS COUNTER
-   ========================================= */
 .stats-section {
   padding: 10rem 5%; background: var(--bg);
   border-top: 1px solid rgba(255,255,255,0.06);
@@ -248,9 +202,6 @@ nav {
   letter-spacing: 2px; color: rgba(255,255,255,0.15);
 }
 
-/* =========================================
-   SECTION 5: FEATURED BOOK
-   ========================================= */
 .feature-section {
   padding: 8rem 5%; background: #080808;
   display: grid; grid-template-columns: 1fr 1.4fr; gap: 8rem; align-items: center;
@@ -308,9 +259,6 @@ nav {
 .feature-cta:hover::before { transform: translateX(0); }
 .feature-cta span { position: relative; z-index: 1; }
 
-/* =========================================
-   SECTION 6: HORIZONTAL SCROLL CATEGORIES
-   ========================================= */
 .categories-section {
   padding: 10rem 0; background: var(--bg); overflow: hidden;
 }
@@ -360,9 +308,6 @@ nav {
   color: rgba(255,255,255,0.4); margin-top: 0.4rem;
 }
 
-/* =========================================
-   SECTION 7: TESTIMONIALS / QUOTES
-   ========================================= */
 .quotes-section {
   padding: 12rem 5%; background: var(--text); color: var(--bg);
   position: relative; overflow: hidden;
@@ -396,9 +341,7 @@ nav {
 }
 .quote-small-attr { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; margin-top: 0.75rem; opacity: 0.45; }
 
-/* =========================================
-   SECTION 8: NEWSLETTER
-   ========================================= */
+
 .newsletter-section {
   padding: 10rem 5%; background: #050505;
   border-top: 1px solid rgba(255,255,255,0.05);
@@ -441,9 +384,6 @@ nav {
 .nl-submit .arrow { position: relative; z-index: 1; font-size: 1.2rem; }
 .nl-privacy { font-family: var(--font-mono); font-size: 0.65rem; color: rgba(255,255,255,0.2); letter-spacing: 2px; line-height: 1.8; }
 
-/* =========================================
-   SECTION 9: MANIFESTO FULL SCREEN
-   ========================================= */
 .manifesto-section {
   min-height: 100vh; display: flex; flex-direction: column;
   justify-content: center; align-items: center; text-align: center;
@@ -463,9 +403,6 @@ nav {
 .manifesto-text em { color: var(--accent); font-style: normal; }
 .manifesto-author { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 5px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-top: 4rem; }
 
-/* =========================================
-   SECTION 10: FOOTER
-   ========================================= */
 footer {
   padding: 6rem 5% 4rem; background: #000;
   border-top: 1px solid rgba(255,255,255,0.06);
@@ -487,14 +424,9 @@ footer {
 .footer-socials a { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.25); text-decoration: none; transition: color 0.3s; }
 .footer-socials a:hover { color: var(--accent); }
 
-/* =========================================
-   SCROLL-TRIGGERED FADE
-   ========================================= */
+
 .reveal { opacity: 0; transform: translateY(40px); }
 
-/* =========================================
-   RESPONSIVE
-   ========================================= */
 @media (max-width: 768px) {
   .editorial { grid-template-columns: 1fr; padding: 5rem 5%; gap: 2rem; }
   .carousel-3d { width: 200px; height: 300px; }

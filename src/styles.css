@@ -18,3 +18,27 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
+/* =========================================
+   CORE ARCHITECTURE & VARIABLES
+   ========================================= */
+:root {
+  --bg: #030303;
+  --text: #E5E5E5;
+  --accent: #B01E23;
+  --accent-dim: rgba(176, 30, 35, 0.15);
+  --font-display: 'Oswald', sans-serif;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-mono: 'Space Grotesk', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+
+html { scroll-behavior: auto; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}

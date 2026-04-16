@@ -43,21 +43,19 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
   @ViewChild('cursorDot') cursorDot!: ElementRef;
   @ViewChild('cursorRing') cursorRing!: ElementRef;
 
-  // Marquee items
   marqueeItems: string[] = [
     'Literary Fiction', 'Philosophy', 'Science & Cosmos', 'Poetry',
     'History', 'Technology', 'Art & Aesthetics', 'Biography',
     'Architecture', 'Anthropology', 'Mythology', 'Semiotics'
   ];
 
-  // Reliable placeholder images (Picsum) – replace with your own if needed
   carouselImages: string[] = [
-    'https://picsum.photos/id/1001/600/800', // Landscape
-    'https://picsum.photos/id/1002/600/800', // Camera
-    'https://picsum.photos/id/1003/600/800', // Deer
-    'https://picsum.photos/id/1004/600/800', // Lake
-    'https://picsum.photos/id/1005/600/800', // Mountain
-    'https://picsum.photos/id/1006/600/800', // Forest
+    'https://picsum.photos/id/1001/600/800',
+    'https://picsum.photos/id/1002/600/800', 
+    'https://picsum.photos/id/1003/600/800', 
+    'https://picsum.photos/id/1004/600/800',
+    'https://picsum.photos/id/1005/600/800', 
+    'https://picsum.photos/id/1006/600/800',
   ];
 
   private lenis!: Lenis;
@@ -115,9 +113,9 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
       duration: 1.5,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smooth: true,
-    } as any); // Bypass TypeScript error
+    } as any); 
 
-    // Sync with ScrollTrigger
+  
     this.lenis.on('scroll', () => ScrollTrigger.update());
 
     const raf = (time: number) => {
@@ -231,7 +229,6 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
     this.carouselRadius = window.innerWidth < 768 ? 250 : 500;
     const theta = 360 / numBooks;
 
-    // Clear any existing children (safety)
     carousel.innerHTML = '';
 
     this.carouselImages.forEach((imgSrc, index) => {
