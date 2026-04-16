@@ -1,0 +1,227 @@
+<div class="cursor-dot" #cursorDot></div>
+<div class="cursor-ring" #cursorRing></div>
+
+<!-- PRELOADER -->
+<div class="preloader" #preloader>
+  <div class="loader-text">ATHENA</div>
+  <div class="loader-percent" #loaderPct>000</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" #loaderBar></div></div>
+</div>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-title-wrap">
+    <p class="hero-eyebrow" #heroEyebrow>The Digital Literary Cosmos</p>
+    <h1 class="hero-title" #splitText>AESTHETICA</h1>
+    <p class="hero-subtitle" #heroSubtitle>Literature encoded in light and logic.</p>
+  </div>
+  <div class="hero-scroll-hint" #heroScrollHint>Scroll</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" #marqueeTrack></div>
+</div>
+
+<!-- 3D CAROUSEL -->
+<section class="realm-section" #realmSection>
+  <p class="realm-label">— The Archive Vault —</p>
+  <div class="carousel-ui">[ Drag to Rotate ]</div>
+  <div class="scene-3d">
+    <div class="carousel-3d" #carousel></div>
+  </div>
+</section>
+
+<!-- EDITORIAL -->
+<section class="editorial">
+  <div class="ed-img">
+    <img class="parallax-img" src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1200" alt="Library">
+  </div>
+  <div>
+    <h2 class="ed-title gsap-slide">Beyond<br>The<br>Surface.</h2>
+    <p class="ed-text gsap-slide">We do not merely read words; we inhabit architectures of thought. Athena is an architectural approach to digital literature — where every page is a room, and every room has a memory.</p>
+    <p class="ed-meta gsap-slide">Est. MMXXIV — Cairo, Egypt</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <p class="stats-eyebrow reveal">By The Numbers</p>
+  <div class="stats-grid">
+    <div class="stat-card reveal">
+      <span class="stat-index">01</span>
+      <div class="stat-number"><span class="counter" #counter data-target="12500">0</span><span class="stat-suffix">+</span></div>
+      <p class="stat-label">Volumes Catalogued</p>
+    </div>
+    <div class="stat-card reveal">
+      <span class="stat-index">02</span>
+      <div class="stat-number"><span class="counter" #counter data-target="340">0</span><span class="stat-suffix">K</span></div>
+      <p class="stat-label">Words Written Monthly</p>
+    </div>
+    <div class="stat-card reveal">
+      <span class="stat-index">03</span>
+      <div class="stat-number"><span class="counter" #counter data-target="86">0</span><span class="stat-suffix"></span></div>
+      <p class="stat-label">Genres & Sub-Genres</p>
+    </div>
+    <div class="stat-card reveal">
+      <span class="stat-index">04</span>
+      <div class="stat-number"><span class="counter" #counter data-target="99">0</span><span class="stat-suffix">%</span></div>
+      <p class="stat-label">Reader Satisfaction</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED BOOK -->
+<section class="feature-section">
+  <div class="feature-img-wrap reveal">
+    <span class="feature-badge">Featured Selection</span>
+    <img class="feature-img" src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800" alt="Book">
+  </div>
+  <div>
+    <p class="feature-label reveal">Vol. 01 — Editor's Choice</p>
+    <h2 class="feature-title reveal">The Geometry<br>of Loss</h2>
+    <p class="feature-author reveal">— Marina Volkov, 2024</p>
+    <div class="feature-divider reveal"></div>
+    <p class="feature-desc reveal">A labyrinthine novel navigating grief, memory, and the mathematics of human connection. Volkov dismantles narrative linearity in favor of something far more honest: the spiraling, recursive nature of how we remember those we love.</p>
+    <div class="feature-tags reveal">
+      <span class="tag">Literary Fiction</span>
+      <span class="tag">Contemporary</span>
+      <span class="tag">Grief & Memory</span>
+      <span class="tag">Experimental</span>
+    </div>
+    <a href="#" class="feature-cta reveal"><span>Enter The Archive</span></a>
+  </div>
+</section>
+
+<!-- CATEGORIES HORIZONTAL SCROLL -->
+<section class="categories-section">
+  <div class="categories-header">
+    <h2 class="categories-title reveal">Explore<br>the Realms</h2>
+    <p class="categories-meta reveal">7 Domains of Thought</p>
+  </div>
+  <div class="categories-track-wrap" #catTrackWrap>
+    <div class="categories-track" #catTrack>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=600" alt="Philosophy">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain I</p>
+          <h3 class="category-card-title">Philosophy</h3>
+          <p class="category-card-count">2,340 volumes</p>
+        </div>
+      </div>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?auto=format&fit=crop&q=80&w=600" alt="Science">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain II</p>
+          <h3 class="category-card-title">Science & Cosmos</h3>
+          <p class="category-card-count">1,870 volumes</p>
+        </div>
+      </div>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=600" alt="Poetry">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain III</p>
+          <h3 class="category-card-title">Poetry & Verse</h3>
+          <p class="category-card-count">980 volumes</p>
+        </div>
+      </div>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?auto=format&fit=crop&q=80&w=600" alt="Tech">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain IV</p>
+          <h3 class="category-card-title">Technology</h3>
+          <p class="category-card-count">3,120 volumes</p>
+        </div>
+      </div>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600" alt="History">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain V</p>
+          <h3 class="category-card-title">History</h3>
+          <p class="category-card-count">2,760 volumes</p>
+        </div>
+      </div>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600" alt="Fiction">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain VI</p>
+          <h3 class="category-card-title">Literary Fiction</h3>
+          <p class="category-card-count">4,200 volumes</p>
+        </div>
+      </div>
+      <div class="category-card">
+        <img class="category-card-img" src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=600" alt="Art">
+        <div class="category-card-content">
+          <p class="category-card-label">Domain VII</p>
+          <h3 class="category-card-title">Art & Aesthetics</h3>
+          <p class="category-card-count">1,230 volumes</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTES -->
+<section class="quotes-section">
+  <div class="quotes-grid">
+    <p class="quotes-label">What Readers Say</p>
+    <div>
+      <p class="quote-main reveal">"Athena has fundamentally altered the geometry of my reading life. It is not a library — it is a cartography of the mind's deepest longings."</p>
+      <div class="quote-attr reveal">
+        <p class="quote-attr-name">Isabelle Fontaine</p>
+        <p class="quote-attr-title">Literary Critic, Paris Review</p>
+      </div>
+    </div>
+    <div class="quotes-list">
+      <div class="quote-small reveal">
+        <p class="quote-small-text">"The most beautiful digital reading experience I have ever encountered. Form and content finally at peace."</p>
+        <p class="quote-small-attr">— Reza Tehrani, Author</p>
+      </div>
+      <div class="quote-small reveal">
+        <p class="quote-small-text">"Architecture for thought. Every scroll, every section, treats literature with the reverence it deserves."</p>
+        <p class="quote-small-attr">— Chiara De Luca, Designer & Reader</p>
+      </div>
+      <div class="quote-small reveal">
+        <p class="quote-small-text">"I came for the books and stayed for the world they built around them. There is nothing else like this."</p>
+        <p class="quote-small-attr">— Kwame Asante, Bibliophile</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto-section">
+  <div class="manifesto-bg-text">A</div>
+  <p class="manifesto-label reveal">The Athena Manifesto</p>
+  <p class="manifesto-text reveal">
+    We believe that <em>words deserve spaces</em> worthy of their weight. That reading is not consumption — it is <em>communion</em>. That the digital world has the capacity to be not a diminishment, but an <em>amplification</em> of what great literature has always offered: a door into another mind.
+  </p>
+  <p class="manifesto-author reveal">— The Athena Collective, MMXXIV</p>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section">
+  <div>
+    <p class="nl-label reveal">Stay Connected</p>
+    <h2 class="nl-title reveal">Letters<br>From<br>the Archive</h2>
+    <p class="nl-desc reveal">Monthly dispatches — new acquisitions, editorial essays, and curated reading lists. No noise, only signal.</p>
+  </div>
+  <div class="nl-form reveal">
+    <div class="nl-input-wrap">
+      <input type="text" class="nl-input" placeholder="Your Name">
+      <div class="nl-input-line"></div>
+    </div>
+    <div class="nl-input-wrap">
+      <input type="email" class="nl-input" placeholder="Your Email Address">
+      <div class="nl-input-line"></div>
+    </div>
+    <button class="nl-submit" #nlSubmit>
+      <span>Subscribe</span>
+      <span class="arrow">→</span>
+    </button>
+    <p class="nl-privacy">By subscribing, you join a community of devoted readers.<br>We respect your privacy absolutely. Unsubscribe at any time.</p>
+  </div>
+</section>
+

@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Oswald:wght@200;400;700&family=Space+Grotesk:wght@300;500&display=swap');
+:root {
+  --bg: #030303;
+  --text: #E5E5E5;
+  --accent: #B01E23;
+  --accent-dim: rgba(176, 30, 35, 0.15);
+  --font-display: 'Oswald', sans-serif;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-mono: 'Space Grotesk', sans-serif;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
