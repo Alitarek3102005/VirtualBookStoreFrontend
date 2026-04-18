@@ -1,0 +1,237 @@
+<div class="toast-container">
+  <div class="toast" *ngIf="toastVisible" [style.borderLeftColor]="toastSuccess ? 'var(--success)' : 'var(--accent)'">
+    <div [style.color]="toastSuccess ? 'var(--success)' : 'var(--accent)'" style="font-size: 1.2rem;">{{ toastSuccess ? '✓' : 'ℹ' }}</div>
+    <div>{{ toastMessage }}</div>
+  </div>
+</div>
+
+<div class="slide-over-backdrop" #slideBackdrop [class.active]="slideOverVisible" (click)="closeSlideOver()"></div>
+
+<div class="slide-over" #slidePanel [class.active]="slideOverVisible">
+  <div class="slide-header">
+    <div class="slide-title" #slideTitle>
+      {{ slideOverType === 'restock' ? 'Update Inventory' : 'Manifest ' + slideOverData?.id }}
+    </div>
+    <button class="btn-close" (click)="closeSlideOver()">✕</button>
+  </div>
+  <div class="slide-body" #slideBody>
+    <ng-container *ngIf="slideOverType === 'restock' && slideOverData">
+      <div class="form-group">
+        <span class="form-label">Book Title</span>
+        <div class="read-only-data">{{ slideOverData.title }}</div>
+      </div>
+      <div class="form-group">
+        <span class="form-label">SKU / ID</span>
+        <div class="read-only-data">{{ slideOverData.id }}</div>
+      </div>
+      <div class="form-group">
+        <span class="form-label">Current Stock</span>
+        <div class="read-only-data" [style.color]="slideOverData.stock <= 5 ? 'var(--danger)' : 'var(--text)'">
+          {{ slideOverData.stock }} Units
+        </div>
+      </div>
+      <div class="form-group" style="margin-top: 2rem;">
+        <label class="form-label" for="restock-qty">Add Inventory (Quantity)</label>
+        <input type="number" id="restock-qty" class="form-input" [(ngModel)]="restockQuantity" placeholder="e.g., 50" min="1" autofocus>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="slideOverType === 'order' && slideOverData">
+      <div class="form-group">
+        <span class="form-label">Customer</span>
+        <div class="read-only-data">{{ slideOverData.customer }}</div>
+      </div>
+      <div class="form-group">
+        <span class="form-label">Total Amount</span>
+        <div class="read-only-data">\${{ slideOverData.amount | number:'1.2-2' }}</div>
+      </div>
+      <div class="form-group">
+        <span class="form-label">Current Status</span>
+        <span class="status-badge" [ngClass]="getOrderStatusClass(slideOverData.status)">
+          {{ slideOverData.status | titlecase }}
+        </span>
+      </div>
+      <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--surface-border);">
+        <span class="form-label">Logistics Actions</span>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          {{ slideOverData.status === 'pending' ? 
+             'Ensure physical inventory is secured before confirming shipment dispatch.' : 
+             'This order has already been dispatched. No further logistics action required.' }}
+        </p>
+      </div>
+    </ng-container>
+  </div>
+  <div class="slide-footer" #slideFooter>
+    <ng-container *ngIf="slideOverType === 'restock'">
+      <button class="btn" style="flex:1;" (click)="closeSlideOver()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" id="save-restock" (click)="submitRestock()">
+        <span class="spinner"></span> <span class="btn-text">Save Changes</span>
+      </button>
+    </ng-container>
+    <ng-container *ngIf="slideOverType === 'order'">
+      <ng-container *ngIf="slideOverData?.status === 'pending'; else shippedFooter">
+        <button class="btn btn-primary" style="flex:1;" id="fulfill-btn" (click)="submitFulfill()">
+          <span class="spinner"></span> <span class="btn-text">Mark as Shipped</span>
+        </button>
+      </ng-container>
+      <ng-template #shippedFooter>
+        <button class="btn" style="flex:1;" (click)="closeSlideOver()">Close Manifest</button>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/" class="logo">ATHENA</a>
+    <div class="sys-badge">Production Environment</div>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-section">
+      <div class="nav-title">Analytics</div>
+      <a routerLink="/admin" class="nav-link active" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Overview</a>
+      <a routerLink="/admin/reports" class="nav-link">Revenue Reports</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Operations</div>
+      <a routerLink="/admin/orders" class="nav-link">Order Fulfillment <span class="badge">12</span></a>
+      <a routerLink="/admin/inventory" class="nav-link">Inventory Control <span class="badge" style="color: var(--danger); border: 1px solid rgba(239,68,68,0.3);">4 Low</span></a>
+      <a routerLink="/admin/catalog" class="nav-link">Catalog Management</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Administration</div>
+      <a routerLink="/admin/users" class="nav-link">User Directory</a>
+      <a routerLink="/admin/reviews" class="nav-link">Reviews</a>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="search-container">
+      <input type="text" id="global-search" #globalSearch placeholder="Search orders, ISBNs, users...">
+      <span class="shortcut-hint">Ctrl K</span>
+    </div>
+    <div class="topbar-actions">
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Oct 12 - Oct 18</span>
+      <button class="btn btn-primary" #exportBtn (click)="triggerExport()">
+        <span class="spinner" #spinner></span>
+        <span class="btn-text" #btnText>Export CSV</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    <div class="kpi-grid">
+      <div class="card gsap-fade">
+        <div class="kpi-header">Gross Volume</div>
+        <div class="kpi-val">\${{ kpis.grossVolume | number:'1.0-0' }}</div>
+        <div class="kpi-trend trend-up">↑ 14.2% vs last 7 days</div>
+      </div>
+      <div class="card gsap-fade">
+        <div class="kpi-header">Transactions</div>
+        <div class="kpi-val">{{ kpis.transactions | number:'1.0-0' }}</div>
+        <div class="kpi-trend trend-up">↑ 5.1% vs last 7 days</div>
+      </div>
+      <div class="card gsap-fade">
+        <div class="kpi-header">Avg. Order Value</div>
+        <div class="kpi-val">\${{ kpis.avgOrderValue | number:'1.2-2' }}</div>
+        <div class="kpi-trend trend-down">↓ 1.2% vs last 7 days</div>
+      </div>
+      <div class="card gsap-fade">
+        <div class="kpi-header">Inventory Alerts</div>
+        <div class="kpi-val" style="color: var(--danger);">{{ kpis.inventoryAlerts }}</div>
+        <div class="kpi-trend" style="color: var(--text-muted);">SKUs under threshold</div>
+      </div>
+    </div>
+
+    <!-- CHARTS - using plain canvas elements -->
+    <div class="charts-grid">
+      <div class="card gsap-fade">
+        <div class="card-header"><span class="card-title">Revenue Lifecycle</span></div>
+        <div class="chart-container">
+          <canvas #mainChartCanvas></canvas>
+        </div>
+      </div>
+      <div class="card gsap-fade">
+        <div class="card-header"><span class="card-title">Sales by Category</span></div>
+        <div class="chart-container">
+          <canvas #genreChartCanvas></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="tables-grid">
+      <div class="card gsap-fade" style="padding:0;">
+        <div class="card-header" style="padding: 1.5rem; margin: 0; border-bottom: 1px solid var(--surface-border);">
+          <span class="card-title">Critical Inventory</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Book Title / ISBN</th>
+                <th>Stock</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of inventoryItems">
+                <td>{{ item.title }} <span class="td-sub">ID: {{ item.id }} • {{ item.author }}</span></td>
+                <td>
+                  <span class="status-badge" [ngClass]="getStockStatusClass(item.stock)">
+                    {{ item.stock }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn" [class.btn-danger]="item.status === 'critical'" (click)="openRestock(item)">
+                    Restock
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card gsap-fade" style="padding:0;">
+        <div class="card-header" style="padding: 1.5rem; margin: 0; border-bottom: 1px solid var(--surface-border);">
+          <span class="card-title">Live Transaction Feed</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th class="td-currency">Amount</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of orderItems">
+                <td>{{ order.id }} <span class="td-sub">{{ order.date }}</span></td>
+                <td>{{ order.customer }} <span class="td-sub">{{ order.paymentMethod }}</span></td>
+                <td>
+                  <span class="status-badge" [ngClass]="getOrderStatusClass(order.status)">
+                    {{ order.status | titlecase }}
+                  </span>
+                </td>
+                <td class="td-currency">\${{ order.amount | number:'1.2-2' }}</td>
+                <td>
+                  <button class="btn" 
+                          [class.btn-primary]="order.status === 'pending'"
+                          style="padding: 0.3rem 0.8rem; font-size: 0.7rem;"
+                          (click)="openOrder(order)">
+                    {{ order.status === 'pending' ? 'Fulfill' : 'View' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

@@ -1,0 +1,159 @@
+<!-- user-management.component.html -->
+<div class="noise-overlay"></div>
+
+<div class="toast-container">
+  <div class="toast" *ngIf="toastVisible" [style.borderLeftColor]="getToastColor()">
+    <div [style.color]="getToastColor()" style="font-size: 1.2rem;">{{ getToastIcon() }}</div>
+    <div>{{ toastMessage }}</div>
+  </div>
+</div>
+
+<div class="slide-over-backdrop" [class.active]="slideOverVisible" (click)="closeSlideOver()"></div>
+
+<div class="slide-over" [class.active]="slideOverVisible">
+  <div class="slide-header">
+    <div class="slide-title">Access Control</div>
+    <button class="btn-close" (click)="closeSlideOver()">✕</button>
+  </div>
+
+  <div class="slide-body" *ngIf="selectedUser">
+    <div class="profile-header">
+      <div class="profile-avatar">{{ selectedUser.avatarInitials }}</div>
+      <div>
+        <div class="profile-name">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</div>
+        <div class="profile-id">ID: {{ selectedUser.id }}</div>
+      </div>
+    </div>
+
+    <div class="detail-block">
+      <span class="detail-label">Contact Verification</span>
+      <div style="font-family: var(--font-mono); font-size: 0.95rem;">{{ selectedUser.email }}</div>
+      <div style="color: var(--success); font-size: 0.75rem; margin-top: 5px;">Email Verified</div>
+    </div>
+
+    <div class="detail-block">
+      <span class="detail-label">Platform Engagement</span>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <span class="stat-value">{{ selectedUser.ordersPlaced }}</span>
+          <span class="stat-name">Orders Placed</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ selectedUser.reviewsWritten }}</span>
+          <span class="stat-name">Reviews Written</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="security-controls" *ngIf="selectedUser">
+    <div>
+      <label class="form-label">System Role (Permissions)</label>
+      <select class="role-select" [(ngModel)]="newRole" (change)="onRoleChange()">
+        <option value="Customer">Standard Customer</option>
+        <option value="Publisher">Publisher / Author</option>
+        <option value="Admin">System Administrator</option>
+      </select>
+    </div>
+
+    <button class="btn" style="width: 100%; margin-top: 0.5rem;"
+            [class.btn-danger]="selectedUser.status === 'Active' && selectedUser.role !== 'Admin'"
+            [class.btn-success]="selectedUser.status === 'Suspended' && selectedUser.role !== 'Admin'"
+            [disabled]="selectedUser.role === 'Admin'"
+            (click)="toggleAccountAccess()">
+      <span class="spinner"></span>
+      <span class="btn-text">{{ getToggleButtonText() }}</span>
+    </button>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/" class="logo">ATHENA</a>
+    <div class="sys-badge">Production Environment</div>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-section">
+      <div class="nav-title">Analytics</div>
+      <a routerLink="/admin" class="nav-link" routerLinkActive="active">Overview</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Operations</div>
+      <a routerLink="/admin/orders" class="nav-link">Order Operations</a>
+      <a routerLink="/admin/inventory" class="nav-link">Inventory Control</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Administration</div>
+      <a routerLink="/admin/users" class="nav-link active" routerLinkActive="active">User Directory</a>
+      <a routerLink="/admin/logs" class="nav-link">System Logs</a>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="search-container">
+      <input type="text" id="global-search" #globalSearch placeholder="Search identities, emails, or user IDs...">
+      <span class="shortcut-hint">Ctrl K</span>
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    <div class="page-header gsap-slide">
+      <h1 class="page-title">Identity Directory</h1>
+      <button class="btn btn-primary">Export User Data</button>
+    </div>
+
+    <div class="user-metrics gsap-slide">
+      <div class="metric-box">
+        <div class="metric-title">Total Registered</div>
+        <div class="metric-value">{{ totalRegistered | number:'1.0-0' }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Active (30 Days)</div>
+        <div class="metric-value">{{ activeUsers }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Publisher Accounts</div>
+        <div class="metric-value">{{ publisherCount }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title" style="color: var(--danger);">Suspended Accounts</div>
+        <div class="metric-value" style="color: var(--danger);">{{ suspendedCount }}</div>
+      </div>
+    </div>
+
+    <div class="table-card gsap-fade">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Identity</th>
+              <th>Role Allocation</th>
+              <th>Account Status</th>
+              <th>Registration Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>
+                <div class="user-identity">
+                  <div class="avatar">{{ user.avatarInitials }}</div>
+                  <div>
+                    <div class="td-name">{{ user.firstName }} {{ user.lastName }}</div>
+                    <span class="td-sub">{{ user.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td><span [ngClass]="getRoleClass(user.role)">{{ user.role }}</span></td>
+              <td><span [ngClass]="getStatusClass(user.status)">{{ user.status }}</span></td>
+              <td>{{ user.registrationDate }}</td>
+              <td><button class="btn" (click)="openUserPanel(user)">Manage</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>

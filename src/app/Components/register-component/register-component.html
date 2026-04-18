@@ -1,0 +1,42 @@
+ <div class="noise-overlay"></div>
+    <main class="auth-container">
+      <div class="auth-form-wrapper">
+        <a routerLink="/" class="back-link">Return to Home</a>
+        <div class="form-header gsap-slide">
+          <h1>Begin your <span>journey.</span></h1>
+          <p>Create your digital library account</p>
+        </div>
+        <form class="gsap-slide">
+          <div class="input-row">
+            <div class="input-group">
+              <input type="text" id="fname" name="fname" required autocomplete="off">
+              <label for="fname">First Name</label>
+            </div>
+            <div class="input-group">
+              <input type="text" id="lname" name="lname" required autocomplete="off">
+              <label for="lname">Last Name</label>
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="email" id="email" name="email" required autocomplete="off">
+            <label for="email">Email Address</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="password" name="password" required autocomplete="off">
+            <label for="password">Create Password</label>
+          </div>
+          <button type="submit" class="submit-btn magnetic" #magneticBtn>Initialize Account</button>
+        </form>
+        <div class="auth-footer gsap-slide">
+          <span>Already have an account?</span>
+          <a routerLink="/login">Authenticate</a>
+        </div>
+      </div>
+      <div class="auth-visual">
+        <img #gsapImg src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1200" alt="Library Architecture" class="gsap-img">
+        <div class="visual-overlay"></div>
+        <div class="visual-text gsap-slide">
+          <h2>Build<br>Your<br>Legacy.</h2>
+        </div>
+      </div>
+    </main>

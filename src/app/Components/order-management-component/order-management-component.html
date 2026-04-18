@@ -1,0 +1,158 @@
+<!-- order-management.component.html -->
+<div class="noise-overlay"></div>
+
+<div class="toast-container">
+  <div class="toast" *ngIf="toastVisible" [style.borderLeftColor]="toastSuccess ? 'var(--success)' : 'var(--danger)'">
+    <div [style.color]="toastSuccess ? 'var(--success)' : 'var(--danger)'" style="font-size: 1.2rem;">
+      {{ toastSuccess ? '✓' : '⚠' }}
+    </div>
+    <div>{{ toastMessage }}</div>
+  </div>
+</div>
+
+<div class="slide-over-backdrop" #slideBackdrop [class.active]="slideOverVisible" (click)="closeSlideOver()"></div>
+
+<div class="slide-over" #slidePanel [class.active]="slideOverVisible">
+  <div class="slide-header">
+    <div class="slide-title">Manifest {{ selectedOrder?.id }}</div>
+    <button class="btn-close" (click)="closeSlideOver()">✕</button>
+  </div>
+
+  <div class="slide-body" *ngIf="selectedOrder">
+    <div class="detail-block">
+      <span class="detail-label">Customer Profile</span>
+      <div class="detail-value">{{ selectedOrder.customerName }}</div>
+      <div class="detail-value" style="color: var(--text-muted); font-family: var(--font-mono);">
+        {{ selectedOrder.customerEmail }}
+      </div>
+    </div>
+
+    <div class="detail-block">
+      <span class="detail-label">Financial Transaction</span>
+      <div class="detail-value" style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 600;">
+        \${{ selectedOrder.total | number:'1.2-2' }}
+      </div>
+      <div class="detail-value" style="color: var(--success); font-size: 0.8rem; margin-top: 5px;">
+        Payment Captured
+      </div>
+    </div>
+
+    <div class="detail-block">
+      <span class="detail-label">Requested Inventory ({{ selectedOrder.items.length }} Items)</span>
+      <div class="manifest-items">
+        <div class="manifest-item" *ngFor="let item of selectedOrder.items">
+          <span class="manifest-item-title">{{ item }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-update-form" *ngIf="selectedOrder">
+    <label class="form-label">Update Logistics Status</label>
+    <select class="status-select" [(ngModel)]="newStatus">
+      <option value="Pending">Pending Validation</option>
+      <option value="Shipped">Shipped / Dispatched</option>
+      <option value="Delivered">Delivered</option>
+      <option value="Cancelled">Cancelled / Refunded</option>
+    </select>
+    <button class="btn btn-primary" style="width: 100%;" (click)="saveOrderStatus()">
+      <span class="spinner"></span>
+      <span class="btn-text">Confirm Status Update</span>
+    </button>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/" class="logo">ATHENA</a>
+    <div class="sys-badge">Production Environment</div>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-section">
+      <div class="nav-title">Analytics</div>
+      <a routerLink="/admin" class="nav-link" routerLinkActive="active">Overview</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Operations</div>
+      <a routerLink="/admin/orders" class="nav-link active" routerLinkActive="active">
+        Order Operations
+        <span class="badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+      </a>
+      <a routerLink="/admin/inventory" class="nav-link">Inventory Control</a>
+      <a routerLink="/admin/catalog" class="nav-link">Catalog Management</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Administration</div>
+      <a routerLink="/admin/users" class="nav-link">User Directory</a>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="search-container">
+      <input type="text" id="global-search" #globalSearch placeholder="Search by Order ID, Customer Name, or Email...">
+      <span class="shortcut-hint">Ctrl K</span>
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    <div class="page-header gsap-slide">
+      <h1 class="page-title">Global Manifests</h1>
+      <button class="btn btn-primary" (click)="exportManifests()">Export Manifests</button>
+    </div>
+
+    <div class="filter-bar gsap-slide">
+      <select class="filter-select" [(ngModel)]="statusFilter">
+        <option>All Statuses</option>
+        <option>Pending</option>
+        <option>Shipped</option>
+        <option>Delivered</option>
+        <option>Cancelled</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="dateFilter">
+        <option>Last 30 Days</option>
+        <option>Year to Date</option>
+      </select>
+    </div>
+
+    <div class="table-card gsap-fade">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Timestamp</th>
+              <th>Customer Details</th>
+              <th>Current Status</th>
+              <th class="td-currency">Total Pay</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of filteredOrders">
+              <td class="td-id">{{ order.id }}</td>
+              <td>
+                {{ order.timestamp }}
+                <span class="td-sub">{{ order.timeCode }}</span>
+              </td>
+              <td>
+                {{ order.customerName }}
+                <span class="td-sub">{{ order.customerEmail }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="td-currency">\${{ order.total | number:'1.2-2' }}</td>
+              <td>
+                <button class="btn" (click)="openOrderManifest(order)">Manage</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>

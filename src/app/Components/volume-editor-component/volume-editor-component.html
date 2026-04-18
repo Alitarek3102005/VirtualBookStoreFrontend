@@ -1,0 +1,105 @@
+<!-- volume-editor.component.html -->
+<div class="noise-overlay"></div>
+
+<div class="toast-container">
+  <div class="toast" *ngIf="toastVisible">
+    <div style="color: var(--success); font-size: 1.2rem;">✓</div>
+    <div>{{ toastMessage }}</div>
+  </div>
+</div>
+
+<form #form="ngForm" (ngSubmit)="onSubmit()">
+  <header class="workspace-header">
+    <div class="breadcrumbs">
+      <a routerLink="/admin/inventory">Inventory</a>
+      <span>/</span>
+      <span>Add New Volume</span>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn" (click)="discard()">Discard</button>
+      <button type="submit" class="btn btn-primary magnetic" #saveBtn [disabled]="isSaving">
+        <span class="spinner" #spinner></span>
+        <span class="btn-text" #btnText>Save to Archive</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="editor-container">
+    <aside class="media-column gsap-fade">
+      <h2 class="section-title">Cover Media</h2>
+
+      <div class="upload-zone" #dropZone>
+        <img #previewImage src="" alt="Preview" class="preview-image">
+        <div class="upload-content" #uploadContent>
+          <div class="upload-icon">⇪</div>
+          <div class="upload-text">
+            Drag & Drop Cover Image<br>
+            <span style="font-size: 0.65rem; color: #555; margin-top: 5px; display: block;">
+              JPEG, PNG, WEBP (Max 5MB)
+            </span>
+          </div>
+        </div>
+        <input type="file" class="upload-input" #fileInput accept="image/*">
+      </div>
+
+      <div class="status-card">
+        <div class="status-row">
+          <span class="status-label">Visibility</span>
+          <span class="status-value" style="color: var(--success);">Public Draft</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">SKU Generated</span>
+          <span class="status-value">Auto-assigned on save</span>
+        </div>
+      </div>
+    </aside>
+
+    <section class="metadata-column gsap-slide">
+      <h2 class="section-title">Volume Metadata</h2>
+
+      <div class="form-grid">
+        <div class="input-group full-width">
+          <input type="text" id="title" name="title" [(ngModel)]="formData.title" placeholder=" " required autocomplete="off">
+          <label for="title">Volume Title</label>
+        </div>
+
+        <div class="input-group full-width">
+          <input type="text" id="author" name="author" [(ngModel)]="formData.author" placeholder=" " required autocomplete="off">
+          <label for="author">Author Name</label>
+        </div>
+
+        <div class="input-group">
+          <select id="publisher" name="publisher" [(ngModel)]="formData.publisher" required>
+            <option value="" disabled selected hidden></option>
+            <option *ngFor="let pub of publishers" [value]="pub.value">{{ pub.label }}</option>
+          </select>
+          <label for="publisher">Publisher Entity</label>
+        </div>
+
+        <div class="input-group">
+          <select id="genre" name="genre" [(ngModel)]="formData.genre" required>
+            <option value="" disabled selected hidden></option>
+            <option *ngFor="let g of genres" [value]="g.value">{{ g.label }}</option>
+          </select>
+          <label for="genre">Primary Genre</label>
+        </div>
+
+        <div class="input-group">
+          <span class="input-addon">$</span>
+          <input type="number" id="price" name="price" [(ngModel)]="formData.price" class="has-addon" step="0.01" min="0" required autocomplete="off" placeholder=" ">
+          <label for="price" style="left: 20px;">Retail Price</label>
+        </div>
+
+        <div class="input-group">
+          <input type="number" id="quantity" name="quantity" [(ngModel)]="formData.quantity" placeholder=" " min="0" required autocomplete="off">
+          <label for="quantity">Initial Stock Quantity</label>
+        </div>
+
+        <div class="input-group full-width">
+          <textarea id="description" name="description" [(ngModel)]="formData.description" placeholder=" " required></textarea>
+          <label for="description">Synopsis / Description</label>
+        </div>
+      </div>
+    </section>
+  </main>
+</form>

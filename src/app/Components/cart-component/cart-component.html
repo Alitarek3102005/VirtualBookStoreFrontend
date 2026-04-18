@@ -1,0 +1,70 @@
+ `
+    <div class="noise-overlay"></div>
+    <main class="cart-container">
+      <div class="cart-header gsap-slide">
+        <h1>Active <span>Manifest.</span></h1>
+        <p>Review your selections before initialization</p>
+      </div>
+      <div class="cart-layout">
+        <div class="cart-items-wrapper gsap-fade">
+          <div class="cart-labels" [class.hidden]="cartItems.length === 0">
+            <div>Title / Details</div>
+            <div class="label-qty">Quantity</div>
+            <div class="label-total">Line Total</div>
+          </div>
+          <div id="cart-items-container">
+            <div
+              *ngFor="let item of cartItems; trackBy: trackById"
+              class="cart-item"
+              [attr.data-price]="item.price"
+              #cartItem
+            >
+              <div class="item-details">
+                <div class="item-cover">
+                  <img [src]="item.image" alt={{item.title}}>
+                </div>
+                <div class="item-info">
+                  <h2>{{ item.title }}</h2>
+                  <p>{{ item.author }} • {{ item.format }}</p>
+                  <div class="item-price">\${{ item.price | number:'1.2-2' }}</div>
+                  <button class="remove-btn" (click)="removeItem(item, cartItem)">Remove Volume</button>
+                </div>
+              </div>
+              <div class="item-qty">
+                <div class="qty-selector">
+                  <button class="qty-btn" (click)="decreaseQuantity(item)">-</button>
+                  <span class="qty-num">{{ item.quantity }}</span>
+                  <button class="qty-btn" (click)="increaseQuantity(item)">+</button>
+                </div>
+              </div>
+              <div class="item-total-price">\${{ item.price * item.quantity | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="empty-cart-msg" [style.display]="cartItems.length === 0 ? 'block' : 'none'">
+            Your archive is currently empty.
+          </div>
+        </div>
+        <div class="cart-summary gsap-slide">
+          <div class="summary-card">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span>\${{ subtotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Digital Delivery</span>
+              <span>\$0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Taxes (Estimated)</span>
+              <span>\${{ taxes | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-total">
+              <span>Total</span>
+              <span>\${{ grandTotal | number:'1.2-2' }}</span>
+            </div>
+            <a class="checkout-btn magnetic" #magneticBtn [class.disabled]="cartItems.length === 0">Initialize Checkout</a>
+          </div>
+        </div>
+      </div>
+    </main>

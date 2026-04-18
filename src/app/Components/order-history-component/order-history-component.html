@@ -1,0 +1,52 @@
+<div class="noise-overlay"></div>
+
+<main class="history-container">
+  <a routerLink="/profile" class="back-link gsap-slide"
+    >← Return to Dashboard</a
+  >
+
+  <div class="page-header gsap-slide">
+    <h1>Acquisition <span>archives.</span></h1>
+    <p>A complete ledger of your literary transactions</p>
+  </div>
+
+  <div class="ledger-container">
+    <div class="ledger-header gsap-fade">
+      <div>Manifest ID</div>
+      <div>Transaction Date</div>
+      <div>Volume Count</div>
+      <div>Total Authorization</div>
+      <div>Logistics Status</div>
+      <div></div>
+    </div>
+
+    <a
+      *ngFor="let order of orders; trackBy: trackById"
+      [routerLink]="['/order', order.id]"
+      class="order-row gsap-fade"
+    >
+      <div class="col-id"><span>#</span> {{ order.id }}</div>
+      <div class="col-date">{{ order.date }}</div>
+      <div class="col-items">
+        {{ order.itemCount }} Volume{{ order.itemCount !== 1 ? "s" : "" }}
+      </div>
+      <div class="col-total">\${{ order.total | number: "1.2-2" }}</div>
+      <div class="col-status mobile-status">
+        <span class="status-badge" [ngClass]="getStatusClass(order.status)">{{
+          getStatusLabel(order.status)
+        }}</span>
+      </div>
+      <div class="col-action">View Manifest →</div>
+    </a>
+  </div>
+
+  <div class="pagination gsap-fade">
+    <span style="color: rgba(229, 229, 229, 0.2); font-size: 0.75rem"
+      >PREV</span
+    >
+    <a href="#" class="page-num active">1</a>
+    <a href="#" class="page-num">2</a>
+    <a href="#" class="page-num">3</a>
+    <a href="#" class="page-arrow">NEXT →</a>
+  </div>
+</main>

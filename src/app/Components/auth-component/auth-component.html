@@ -1,0 +1,32 @@
+<div class="noise-overlay"></div>
+    <main class="auth-container">
+      <div class="auth-visual">
+        <img #gsapImg src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1200" alt="Library Architecture" class="gsap-img">
+        <div class="visual-overlay"></div>
+        <div class="visual-text gsap-slide">
+          <h2>Enter<br>The<br>Archive.</h2>
+        </div>
+      </div>
+      <div class="auth-form-wrapper">
+        <a routerLink="/" class="back-link">Return to Home</a>
+        <div class="form-header gsap-slide">
+          <h1>Welcome <span>back.</span></h1>
+          <p>Authenticate your credentials</p>
+        </div>
+        <form class="gsap-slide">
+          <div class="input-group">
+            <input type="email" id="email" name="email" required autocomplete="off">
+            <label for="email">Email Address</label>
+          </div>
+          <div class="input-group">
+            <input type="password" id="password" name="password" required autocomplete="off">
+            <label for="password">Password</label>
+          </div>
+          <button type="submit" class="submit-btn magnetic" #magneticBtn>Authenticate</button>
+        </form>
+        <div class="auth-footer gsap-slide">
+          <a routerLink="/forgot-password">Forgot Password?</a>
+          <a routerLink="/register">Create an Account</a>
+        </div>
+      </div>
+    </main>

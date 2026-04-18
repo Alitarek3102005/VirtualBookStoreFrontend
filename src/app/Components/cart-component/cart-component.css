@@ -1,0 +1,310 @@
+::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+}
+
+.cart-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10rem 5% 5rem;
+  min-height: 100vh;
+}
+
+.cart-header {
+  margin-bottom: 4rem;
+}
+.cart-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+}
+.cart-header h1 span {
+  font-family: var(--font-serif);
+  color: var(--accent);
+  font-style: italic;
+  text-transform: lowercase;
+  font-size: clamp(4rem, 7vw, 6.5rem);
+  line-height: 0.8;
+  display: block;
+}
+.cart-header p {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: rgba(229, 229, 229, 0.6);
+  margin-top: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 5rem;
+}
+
+.cart-items-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-labels {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(229, 229, 229, 0.4);
+}
+.cart-labels.hidden {
+  display: none;
+}
+.label-qty {
+  text-align: center;
+}
+.label-total {
+  text-align: right;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  align-items: center;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.4s ease;
+}
+
+.item-details {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+.item-cover {
+  width: 100px;
+  aspect-ratio: 2/3;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.item-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item-info h2 {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+}
+.item-info p {
+  font-size: 0.85rem;
+  color: rgba(229, 229, 229, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+.item-price {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: rgba(229, 229, 229, 0.4);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: color 0.3s;
+  border-bottom: 1px solid transparent;
+}
+.remove-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.item-qty {
+  display: flex;
+  justify-content: center;
+}
+.qty-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  width: 100px;
+  height: 40px;
+  border-radius: 2px;
+}
+.qty-btn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.2rem;
+  width: 30px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.qty-btn:hover {
+  color: var(--accent);
+}
+.qty-num {
+  flex: 1;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.item-total-price {
+  text-align: right;
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.empty-cart-msg {
+  padding: 4rem 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: rgba(229, 229, 229, 0.4);
+  font-style: italic;
+}
+
+.cart-summary {
+  position: relative;
+}
+
+.summary-card {
+  position: sticky;
+  top: 8rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  border-radius: 4px;
+}
+
+.summary-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  color: rgba(229, 229, 229, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.summary-total span:first-child {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+.summary-total span:last-child {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--accent);
+}
+
+.checkout-btn {
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 1.2rem;
+  transition:
+    background 0.3s,
+    color 0.3s;
+  margin-top: 2.5rem;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+.checkout-btn:hover {
+  background: var(--accent);
+  color: var(--text);
+}
+.checkout-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .cart-labels {
+    display: none;
+  }
+  .cart-item {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem 0;
+    position: relative;
+  }
+  .item-qty {
+    justify-content: flex-start;
+  }
+  .item-total-price {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 0;
+  }
+  .summary-card {
+    position: relative;
+    top: 0;
+  }
+}

@@ -1,0 +1,159 @@
+<!-- content-moderation.component.html -->
+<div class="noise-overlay"></div>
+
+<div class="toast-container">
+  <div class="toast" *ngIf="toastVisible" [style.borderLeftColor]="getToastColor()">
+    <div [style.color]="getToastColor()" style="font-size: 1.2rem;">{{ getToastIcon() }}</div>
+    <div>{{ toastMessage }}</div>
+  </div>
+</div>
+
+<div class="slide-over-backdrop" [class.active]="slideOverVisible" (click)="closeSlideOver()"></div>
+
+<div class="slide-over" [class.active]="slideOverVisible">
+  <div class="slide-header">
+    <div class="slide-title">Content Policy Action</div>
+    <button class="btn-close" (click)="closeSlideOver()">✕</button>
+  </div>
+
+  <div class="slide-body" *ngIf="selectedReview">
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Target Volume</div>
+      <div style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600;">{{ selectedReview.book }}</div>
+      <div style="color: var(--accent); font-size: 1.2rem; letter-spacing: 2px; margin-top: 5px;" [innerHTML]="getStars(selectedReview.rating)"></div>
+    </div>
+
+    <div class="full-review-box">
+      <div class="full-review-text">{{ selectedReview.text }}</div>
+    </div>
+
+    <div class="detail-block">
+      <span class="detail-label">Author Identity</span>
+      <div style="font-family: var(--font-mono); font-size: 1rem; margin-bottom: 5px;">{{ selectedReview.author }}</div>
+      <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">{{ selectedReview.email }}</div>
+
+      <div class="user-standing">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 5px var(--success);"></span>
+        Account in good standing (0 Previous Violations)
+      </div>
+    </div>
+  </div>
+
+  <div class="moderation-controls" *ngIf="selectedReview">
+    <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Enforce Action</span>
+
+    <div class="control-grid">
+      <button class="btn btn-success" (click)="updateReviewStatus('Published')">
+        <span class="btn-text">Approve & Publish</span>
+      </button>
+      <button class="btn btn-danger" (click)="updateReviewStatus('Removed')">
+        <span class="btn-text">Delete Content</span>
+      </button>
+    </div>
+
+    <button class="btn" style="width: 100%; border-color: var(--warning); color: var(--warning);"
+            *ngIf="selectedReview.status !== 'Flagged' && selectedReview.status !== 'Removed'"
+            (click)="updateReviewStatus('Flagged')">
+      Require Manual Supervisor Review
+    </button>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/" class="logo">ATHENA</a>
+    <div class="sys-badge">Production Environment</div>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-section">
+      <div class="nav-title">Analytics</div>
+      <a routerLink="/admin" class="nav-link" routerLinkActive="active">Overview</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Operations</div>
+      <a routerLink="/admin/orders" class="nav-link">Order Operations</a>
+      <a routerLink="/admin/inventory" class="nav-link">Inventory Control</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Administration</div>
+      <a routerLink="/admin/users" class="nav-link">User Directory</a>
+      <a routerLink="/admin/moderation" class="nav-link active" routerLinkActive="active">
+        Review Moderation
+        <span class="badge" *ngIf="alertCount > 0" [style.background]="'var(--warning)'" [style.color]="'#000'">
+          {{ alertCount }} Alert{{ alertCount !== 1 ? 's' : '' }}
+        </span>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="search-container">
+      <input type="text" id="global-search" #globalSearch placeholder="Search review text, users, or book titles...">
+      <span class="shortcut-hint">Ctrl K</span>
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    <div class="page-header gsap-slide">
+      <h1 class="page-title">Content Moderation</h1>
+      <button class="btn btn-primary">Automated Filters: ON</button>
+    </div>
+
+    <div class="review-metrics gsap-slide">
+      <div class="metric-box">
+        <div class="metric-title" style="color: var(--warning);">Pending Review</div>
+        <div class="metric-value" style="color: var(--warning);">{{ pendingCount }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title" style="color: var(--danger);">System Flagged</div>
+        <div class="metric-value" style="color: var(--danger);">{{ flaggedCount }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Total Published</div>
+        <div class="metric-value">{{ publishedCount | number:'1.0-0' }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Global Avg Rating</div>
+        <div class="metric-value">{{ avgRating | number:'1.1-1' }} <span style="color: var(--accent); font-size: 1.2rem;">★</span></div>
+      </div>
+    </div>
+
+    <div class="filter-bar gsap-slide">
+      <select class="filter-select" [(ngModel)]="statusFilter">
+        <option>All Statuses</option>
+        <option>Pending</option>
+        <option>Flagged</option>
+        <option>Published</option>
+        <option>Removed</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="ratingFilter">
+        <option>All Ratings</option>
+        <option>1 Star (Critical)</option>
+        <option>2-4 Stars</option>
+        <option>5 Stars</option>
+      </select>
+    </div>
+
+    <div class="review-feed gsap-fade">
+      <div class="review-row" *ngFor="let review of filteredReviews">
+        <div class="col-meta">
+          <div class="book-target">{{ review.book }}</div>
+          <div class="author-info">By {{ review.author }} <span style="color: rgba(255,255,255,0.2);">|</span> {{ review.email }}</div>
+        </div>
+        <div class="col-content">
+          <div class="star-rating" [innerHTML]="getStars(review.rating)"></div>
+          <div class="snippet">{{ review.snippet }}</div>
+        </div>
+        <div class="col-status">
+          <span class="status-badge" [ngClass]="getStatusClass(review.status)">{{ review.status }}</span>
+          <span class="date-stamp">{{ review.date }}</span>
+        </div>
+        <div class="col-action">
+          <button class="btn" (click)="openModerationPanel(review)">Moderate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

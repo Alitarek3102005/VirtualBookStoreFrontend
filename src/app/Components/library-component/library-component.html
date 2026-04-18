@@ -1,0 +1,63 @@
+<!-- home.component.html -->
+<header class="hero">
+  <div class="hero-video-wrapper">
+    <video autoplay muted loop playsinline class="hero-video">
+      <source src="/assets/videos/137614-767056227.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <h1 class="gsap-reveal">Literature encoded <br><span>in light & shadow.</span></h1>
+    <p class="gsap-reveal">An architectural approach to the digital bookshelf. Discover award-winning physical and digital volumes.</p>
+  </div>
+  <div class="scroll-indicator gsap-reveal">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</header>
+
+<main class="library-container">
+  <section class="category-shelf gsap-fade">
+    <div class="shelf-header">
+      <h2>Drama & Fiction</h2>
+      <a routerLink="/catalog/fiction">Explore Collection</a>
+    </div>
+    <div class="shelf-track hide-scrollbar parallax-track-1">
+      <div class="book-card" *ngFor="let book of dramaBooks">
+        <div class="book-cover">
+          <img [src]="book.coverImage" alt="{{book.title}}">
+        </div>
+        <div class="book-info">
+          <h3>{{ book.title }}</h3>
+          <p>{{ book.author }}</p>
+          <div class="price-row">
+            <span class="book-price">\${{ book.price }}</span>
+            <button class="add-btn" (click)="addToCart(book)">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="category-shelf gsap-fade">
+    <div class="shelf-header">
+      <h2>Architecture & Design</h2>
+      <a routerLink="/catalog/design">Explore Collection</a>
+    </div>
+    <div class="shelf-track hide-scrollbar parallax-track-2">
+      <div class="book-card" *ngFor="let book of designBooks">
+        <div class="book-cover">
+          <img [src]="book.coverImage" alt="{{book.title}}">
+        </div>
+        <div class="book-info">
+          <h3>{{ book.title }}</h3>
+          <p>{{ book.author }}</p>
+          <div class="price-row">
+            <span class="book-price">\${{ book.price }}</span>
+            <button class="add-btn" (click)="addToCart(book)">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

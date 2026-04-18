@@ -1,0 +1,93 @@
+
+    <div class="noise-overlay"></div>
+
+    <main class="manifest-container">
+      <a routerLink="/profile" class="back-link gsap-slide">← Return to Dashboard</a>
+
+      <div class="manifest-header gsap-slide">
+        <div>
+          <h1>Manifest <span>#{{ orderId }}</span></h1>
+          <div class="manifest-meta">Placed on {{ orderDate }} • Simulated Payment</div>
+        </div>
+        <div class="status-badge" [ngClass]="statusClass">{{ statusText }}</div>
+      </div>
+
+      <div class="manifest-layout">
+        <aside class="gsap-fade">
+          <div class="tracking-section">
+            <h3>Logistics</h3>
+            <div class="timeline">
+              <div
+                *ngFor="let step of timelineSteps"
+                class="timeline-step"
+                [class.completed]="step.completed"
+                [class.active]="step.active"
+              >
+                <div class="step-title">{{ step.title }}</div>
+                <div class="step-date">{{ step.date }}</div>
+              </div>
+            </div>
+
+            <div class="info-block">
+              <div class="info-label">Dispatch Destination</div>
+              <div class="info-data">
+                {{ shippingInfo.name }}<br />
+                {{ shippingInfo.address }}<br />
+                {{ shippingInfo.city }}, {{ shippingInfo.state }} {{ shippingInfo.zip }}<br />
+                {{ shippingInfo.country }}
+              </div>
+            </div>
+
+            <div class="info-block" style="margin-bottom: 0">
+              <div class="info-label">Payment Authorization</div>
+              <div class="info-data" style="margin-bottom: 0">
+                {{ paymentInfo.processor }} securely captured<br />
+                {{ paymentInfo.cardBrand }} ending in •••• {{ paymentInfo.last4 }}
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="receipt-section gsap-fade">
+          <div class="receipt-items">
+            <div *ngFor="let item of orderItems; last as last" class="receipt-item" [style.border-bottom]="last ? 'none' : null">
+              <div class="item-cover">
+                <img [src]="item.coverImage" alt="{{ item.title }}" />
+              </div>
+              <div class="item-info">
+                <h2 class="item-title">{{ item.title }}</h2>
+                <div class="item-author">{{ item.author }}</div>
+              </div>
+              <div class="item-pricing">
+                <div class="item-price">\${{ item.price | number:'1.2-2' }}</div>
+                <div class="item-qty">Qty: {{ item.quantity }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="receipt-summary">
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span>\${{ subtotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Digital & Physical Logistics</span>
+              <span>\${{ shippingCost | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Taxes</span>
+              <span>\${{ tax | number:'1.2-2' }}</span>
+            </div>
+            <div class="grand-total">
+              <span>Total Authorization</span>
+              <span>\${{ grandTotal | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-secondary magnetic" (click)="printManifest()">Print Manifest</button>
+            <a routerLink="/profile" class="btn btn-primary magnetic">Return to Archives</a>
+          </div>
+        </section>
+      </div>
+    </main>

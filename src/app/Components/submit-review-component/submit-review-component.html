@@ -1,0 +1,83 @@
+<div class="noise-overlay"></div>
+
+<main class="review-container">
+  <div class="book-teaser">
+    <div class="teaser-overlay"></div>
+    <div class="book-cover-mini gsap-fade">
+      <img
+        src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600"
+        alt="Book"
+      />
+    </div>
+    <div class="book-meta gsap-slide">
+      <h2>The Silent Echo</h2>
+      <p>Elena Rostov</p>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <a routerLink="/book/the-silent-echo" class="back-link">Discard Review</a>
+
+    <div class="form-header gsap-slide">
+      <h1>Leave your <span>mark.</span></h1>
+      <p>Share your perspective with the archive</p>
+    </div>
+
+    <form (ngSubmit)="submitReview()" class="gsap-slide">
+      <div class="rating-group">
+        <span class="rating-label">Experience Rating</span>
+        <div class="stars">
+          <input
+            type="radio"
+            name="rating"
+            id="star5"
+            value="5"
+            [(ngModel)]="rating"
+          /><label for="star5">★</label>
+          <input
+            type="radio"
+            name="rating"
+            id="star4"
+            value="4"
+            [(ngModel)]="rating"
+          /><label for="star4">★</label>
+          <input
+            type="radio"
+            name="rating"
+            id="star3"
+            value="3"
+            [(ngModel)]="rating"
+          /><label for="star3">★</label>
+          <input
+            type="radio"
+            name="rating"
+            id="star2"
+            value="2"
+            [(ngModel)]="rating"
+          /><label for="star2">★</label>
+          <input
+            type="radio"
+            name="rating"
+            id="star1"
+            value="1"
+            [(ngModel)]="rating"
+          /><label for="star1">★</label>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <textarea
+          id="comment"
+          name="comment"
+          [(ngModel)]="comment"
+          required
+        ></textarea>
+        <label for="comment">Your written critique</label>
+      </div>
+
+      <button type="submit" class="submit-btn magnetic" #magneticBtn>
+        Submit to Archive
+      </button>
+    </form>
+  </div>
+</main>

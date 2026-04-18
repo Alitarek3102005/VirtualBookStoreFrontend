@@ -1,0 +1,151 @@
+`
+<div class="noise-overlay"></div>
+
+<main class="dashboard-container">
+  <aside class="sidebar gsap-slide">
+    <div class="sidebar-menu">
+      <a
+        routerLink="/profile"
+        class="menu-link"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >My Profile</a
+      >
+      <a routerLink="/orders" class="menu-link" routerLinkActive="active"
+        >Order History</a
+      >
+      <a routerLink="/reviews" class="menu-link" routerLinkActive="active"
+        >My Reviews</a
+      >
+      <a routerLink="/login" class="menu-link logout-link">Terminate Session</a>
+    </div>
+  </aside>
+
+  <section class="dashboard-content">
+    <div class="section-block">
+      <div class="section-header gsap-slide">
+        <h1>Account <span>details.</span></h1>
+        <p>Manage your digital presence</p>
+      </div>
+
+      <div class="identity-card gsap-fade">
+        <div class="avatar">{{ user.avatar }}</div>
+        <div class="identity-info">
+          <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+          <div class="identity-role">Verified Customer Account</div>
+
+          <div class="identity-stats">
+            <div class="stat-block">
+              <span class="stat-val">{{ user.ordersPlaced }}</span>
+              <span class="stat-lbl">Placed Orders</span>
+            </div>
+            <div class="stat-block">
+              <span class="stat-val">{{ user.reviewsPublished }}</span>
+              <span class="stat-lbl">Published Reviews</span>
+            </div>
+            <div class="stat-block">
+              <span class="stat-val">{{ user.memberSince }}</span>
+              <span class="stat-lbl">Member Since</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form (ngSubmit)="updateProfile()" class="settings-grid">
+        <div class="form-card gsap-fade">
+          <h3 class="card-title">Identity Records</h3>
+          <div class="input-row">
+            <div class="input-group">
+              <input
+                type="text"
+                id="fname"
+                name="fname"
+                [(ngModel)]="user.firstName"
+                placeholder=" "
+                required
+              />
+              <label for="fname">First Name (FName)</label>
+            </div>
+            <div class="input-group">
+              <input
+                type="text"
+                id="lname"
+                name="lname"
+                [(ngModel)]="user.lastName"
+                placeholder=" "
+                required
+              />
+              <label for="lname">Last Name (LName)</label>
+            </div>
+          </div>
+          <div class="input-group">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="user.email"
+              placeholder=" "
+              required
+            />
+            <label for="email">Primary Email Address</label>
+          </div>
+        </div>
+
+        <div class="form-card gsap-fade">
+          <h3 class="card-title">Security Protocols</h3>
+          <div class="input-group">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="newPassword"
+              placeholder=" "
+            />
+            <label for="password"
+              >New Password (Leave blank to maintain current)</label
+            >
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn magnetic gsap-fade">
+          Update Credentials
+        </button>
+      </form>
+    </div>
+
+    <div class="orders-section">
+      <div class="section-header gsap-slide">
+        <h1>Recent <span>acquisitions.</span></h1>
+        <p>Track your physical and digital volumes</p>
+      </div>
+
+      <div class="orders-list">
+        <div
+          *ngFor="let order of recentOrders"
+          class="order-card gsap-fade"
+          [routerLink]="['/order', order.id]"
+        >
+          <div class="order-info">
+            <div class="order-id"><span>#</span> {{ order.id }}</div>
+            <div class="order-meta">
+              Placed on: {{ order.date }} • {{ order.itemCount }} Item{{
+                order.itemCount !== 1 ? "s" : ""
+              }}
+            </div>
+          </div>
+          <div class="order-status-group">
+            <div class="order-price">\${{ order.total | number: "1.2-2" }}</div>
+            <div
+              class="status-badge"
+              [ngClass]="
+                order.status === 'shipped' ? 'status-shipped' : 'status-pending'
+              "
+            >
+              {{ order.status === "shipped" ? "Shipped" : "Processing" }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

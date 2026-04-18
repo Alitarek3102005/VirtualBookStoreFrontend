@@ -23,7 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
   templateUrl: './athena-archive-component.html',
   styleUrls: ['./athena-archive-component.css'],
   standalone: true,
-  encapsulation: ViewEncapsulation.None, // Required for global styles like cursor
+  encapsulation: ViewEncapsulation.None,
 })
 export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
   @ViewChild('heroEyebrow') heroEyebrow!: ElementRef;
@@ -40,8 +40,6 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
   @ViewChild('catTrackWrap') catTrackWrap!: ElementRef;
   @ViewChildren('counter') counters!: QueryList<ElementRef>;
   @ViewChild('nlSubmit') nlSubmit!: ElementRef;
-  @ViewChild('cursorDot') cursorDot!: ElementRef;
-  @ViewChild('cursorRing') cursorRing!: ElementRef;
 
   marqueeItems: string[] = [
     'Literary Fiction', 'Philosophy', 'Science & Cosmos', 'Poetry',
@@ -51,20 +49,15 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
 
   carouselImages: string[] = [
     'https://picsum.photos/id/1001/600/800',
-    'https://picsum.photos/id/1002/600/800', 
-    'https://picsum.photos/id/1003/600/800', 
+    'https://picsum.photos/id/1002/600/800',
+    'https://picsum.photos/id/1003/600/800',
     'https://picsum.photos/id/1004/600/800',
-    'https://picsum.photos/id/1005/600/800', 
+    'https://picsum.photos/id/1005/600/800',
     'https://picsum.photos/id/1006/600/800',
   ];
 
   private lenis!: Lenis;
   private rafId: number | null = null;
-  private mouseX = 0;
-  private mouseY = 0;
-  private ringX = 0;
-  private ringY = 0;
-  private cursorAnimationFrame: number | null = null;
   private rotationY = 0;
   private targetRotationY = 0;
   private isDragging = false;
@@ -84,11 +77,9 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initLenis();
-      this.initCursor();
       this.initTextSplit();
       this.initPreloader();
       this.initMarquee();
-      // Small delay ensures DOM is fully ready for 3D calculations
       setTimeout(() => this.initCarousel(), 50);
       this.initScrollAnimations();
       this.initCounters();
@@ -101,7 +92,6 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.rafId) cancelAnimationFrame(this.rafId);
-    if (this.cursorAnimationFrame) cancelAnimationFrame(this.cursorAnimationFrame);
     if (this.lenis) this.lenis.destroy();
     this.scrollTriggers.forEach(st => st.kill());
     ScrollTrigger.getAll().forEach(st => st.kill());
@@ -113,9 +103,8 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
       duration: 1.5,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smooth: true,
-    } as any); 
+    } as any);
 
-  
     this.lenis.on('scroll', () => ScrollTrigger.update());
 
     const raf = (time: number) => {
@@ -123,35 +112,6 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
       this.rafId = requestAnimationFrame(raf);
     };
     this.rafId = requestAnimationFrame(raf);
-  }
-
-  private initCursor(): void {
-    const dot = this.cursorDot.nativeElement;
-    const ring = this.cursorRing.nativeElement;
-    this.mouseX = window.innerWidth / 2;
-    this.mouseY = window.innerHeight / 2;
-    this.ringX = this.mouseX;
-    this.ringY = this.mouseY;
-
-    const animateCursor = () => {
-      this.ringX += (this.mouseX - this.ringX) * 0.12;
-      this.ringY += (this.mouseY - this.ringY) * 0.12;
-      dot.style.transform = `translate(${this.mouseX}px, ${this.mouseY}px) translate(-50%, -50%)`;
-      ring.style.transform = `translate(${this.ringX}px, ${this.ringY}px) translate(-50%, -50%)`;
-      this.cursorAnimationFrame = requestAnimationFrame(animateCursor);
-    };
-    this.cursorAnimationFrame = requestAnimationFrame(animateCursor);
-
-    window.addEventListener('mousemove', (e: MouseEvent) => {
-      this.mouseX = e.clientX;
-      this.mouseY = e.clientY;
-    });
-
-    const hoverElements = document.querySelectorAll('a, button, .category-card, .stat-card, .tag');
-    hoverElements.forEach(el => {
-      el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
-      el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
-    });
   }
 
   private initTextSplit(): void {
@@ -243,7 +203,6 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
       this.renderer.appendChild(carousel, book);
     });
 
-    // Drag events
     realm.addEventListener('mousedown', (e: MouseEvent) => {
       this.isDragging = true;
       this.startX = e.clientX;
@@ -277,7 +236,6 @@ export class AthenaArchiveComponent implements AfterViewInit, OnDestroy {
     };
     render3D();
 
-    // Pin realm section
     const st = ScrollTrigger.create({
       trigger: realm,
       start: 'top top',
