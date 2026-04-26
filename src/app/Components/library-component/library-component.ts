@@ -1,94 +1,53 @@
-import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, NgFor, NgIf } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
+import { BookService } from '../../Services/book-service';
+import { Book } from '../../Models/book';
+import { CategoryService } from '../../Services/category-service';
+import { Category } from '../../Models/category';
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  price: number;
-  coverImage: string;
-}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, NgFor, NgIf],
+  imports: [RouterLink, CommonModule],
   templateUrl: './library-component.html',
   styleUrls: ['./library-component.css']
 })
-export class LibraryComponent implements AfterViewInit, OnDestroy {
-  dramaBooks: Book[] = [
-    {
-      id: 1,
-      title: 'The Silent Echo',
-      author: 'Elena Rostov',
-      price: 24.00,
-      coverImage: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 2,
-      title: 'Fading Light',
-      author: 'Marcus Chen',
-      price: 18.50,
-      coverImage: 'https://images.unsplash.com/photo-1629196914561-bd804b49463e?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 3,
-      title: 'Autumn Leaves',
-      author: 'Sarah Jenkins',
-      price: 21.00,
-      coverImage: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 4,
-      title: 'The Glass Mind',
-      author: 'David Alistair',
-      price: 29.99,
-      coverImage: 'https://images.unsplash.com/photo-1618666012174-83b441c0bc76?auto=format&fit=crop&q=80&w=600'
-    }
-  ];
-
-  designBooks: Book[] = [
-    {
-      id: 5,
-      title: 'Brutalist Forms',
-      author: 'Institute of Design',
-      price: 65.00,
-      coverImage: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 6,
-      title: 'Spatial Dynamics',
-      author: 'Thomas Wright',
-      price: 45.00,
-      coverImage: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 7,
-      title: 'Modern Typography',
-      author: 'Elena Rostov',
-      price: 35.00,
-      coverImage: 'https://images.unsplash.com/photo-1614113489855-66422ad300a4?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 8,
-      title: 'Design Systems',
-      author: 'Marcus Chen',
-      price: 50.00,
-      coverImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600'
-    }
-  ];
-
+export class LibraryComponent implements AfterViewInit, OnDestroy, OnInit {
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
+  
+  public categories: Category[] = [];
+  
+  // 1. The Dictionary that the HTML reads from
+  public booksByCategory: { [key: number]: Book[] } = {};
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private bookService: BookService,
+    private _router: Router,
+    private categoryService: CategoryService
+  ) {}
+
+  ngOnInit(): void {
+    // 2. Load all categories first
+    this.categoryService.getCategories().subscribe(categories => {
+      this.categories = categories;
+      
+      // 3. Loop through every category and fill the shelves!
+      this.categories.forEach(category => {
+        this.bookService.getBookByCategory(category.id).subscribe(books => {
+          // Assign the books to the correct shelf ID in the dictionary
+          this.booksByCategory[category.id] = books;
+        });
+      });
+    });
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -101,6 +60,22 @@ export class LibraryComponent implements AfterViewInit, OnDestroy {
     if (this.rafId) cancelAnimationFrame(this.rafId);
     if (this.lenis) this.lenis.destroy();
   }
+
+  // ==========================================
+  // BUTTON ACTIONS
+  // ==========================================
+
+  addToCart(book: Book): void {
+    console.log(`Added to cart: ${book.title}`);
+  }
+
+  viewDetails(bookId: number): void {
+    this._router.navigateByUrl(`/product-details/${bookId}`);
+  }
+
+  // ==========================================
+  // ANIMATION & SCROLL METHODS (No changes needed here!)
+  // ==========================================
 
   private initSmoothScroll(): void {
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
@@ -153,21 +128,6 @@ export class LibraryComponent implements AfterViewInit, OnDestroy {
           scrub: 1
         }
       });
-      gsap.to('.parallax-track-2', {
-        x: 80,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.library-container',
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
-        }
-      });
     }
-  }
-
-  addToCart(book: Book): void {
-    console.log(`Added to cart: ${book.title}`);
-    // TODO: Implement actual cart service
   }
 }

@@ -3,26 +3,27 @@
       <div class="product-visual">
         <div class="sticky-wrapper">
           <div class="book-cover gsap-fade">
-            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800" alt="The Silent Echo">
+            <img src="{{ book.imageUrl }}" alt="The Silent Echo">
           </div>
         </div>
       </div>
       <div class="product-info">
         <div class="breadcrumbs gsap-slide">
-          <a routerLink="/">Home</a> / <a routerLink="/catalog">Catalog</a> / Sci-Fi / <span>The Silent Echo</span>
+          <a routerLink="/">Home</a> / <a routerLink="/catalog">Catalog</a> / {{ book.categoryName }} / <span>{{ book.title }}</span>
         </div>
         <div class="product-header gsap-slide">
-          <h1 class="product-title">The Silent<br>Echo</h1>
-          <h2 class="product-author">by Elena Rostov</h2>
+          <h1 class="product-title">{{ book.title }}</h1>
+          <h2 class="product-author">{{ book.author }}</h2>
+          
           <div class="meta-row">
-            <div class="genre-tag">Sci-Fi & Thriller</div>
+            <div class="genre-tag">{{ book.categoryName }}</div>
             <div class="rating">★★★★<span>★</span> (4.2)</div>
           </div>
         </div>
         <div class="product-desc gsap-slide">
-          <p>In a future where humanity has colonized the distant edges of the galaxy, communication between star systems relies on a network of ancient, alien relays. When the central hub suddenly goes dark, a lone engineer named Kaelen must navigate the silent void to uncover the truth.</p>
+          <p>{{ book.description?.slice(0, 200) + '...' }}</p>
           <br>
-          <p>Elena Rostov weaves a masterful tale of isolation, artificial intelligence, and the enduring human spirit in this award-winning novel that asks: what happens when the universe stops listening?</p>
+          <p>{{ book.description?.slice(200) }}</p>
         </div>
         <div class="purchase-bar gsap-slide">
           <div class="qty-selector">
@@ -32,7 +33,7 @@
           </div>
           <button class="add-to-cart magnetic" #magneticBtn>
             <span>Add to Library</span>
-            <span>$24.00</span>
+            <span>{{ book.price | currency:'USD':'symbol' }}</span>
           </button>
         </div>
         <div class="reviews-section gsap-fade">

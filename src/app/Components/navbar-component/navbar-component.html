@@ -3,7 +3,10 @@
       <ul class="nav-links">
         <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Archive</a></li>
         <li><a routerLink="/library" routerLinkActive="active">Library</a></li>
-        <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+        <li>
+          <a routerLink="/login"  routerLinkActive="active"><span *ngIf="!isLoggedIn">Login</span></a>
+          <a routerLink="/logout" (click)="logout()" routerLinkActive="active"><span *ngIf="isLoggedIn">Logout</span></a>
+        </li>
         <li><a routerLink="/cart" routerLinkActive="active">Cart</a></li>
       </ul>
       <div class="nav-meta">The Infinite BookStore</div>

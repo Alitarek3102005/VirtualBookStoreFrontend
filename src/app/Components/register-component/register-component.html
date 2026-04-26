@@ -6,23 +6,23 @@
           <h1>Begin your <span>journey.</span></h1>
           <p>Create your digital library account</p>
         </div>
-        <form class="gsap-slide">
+        <form class="gsap-slide" (ngSubmit)="register()">
           <div class="input-row">
             <div class="input-group">
-              <input type="text" id="fname" name="fname" required autocomplete="off">
-              <label for="fname">First Name</label>
+              <input type="text" id="Username" name="Username" [(ngModel)]="username" required autocomplete="off">
+              <label for="Username">Username</label>
             </div>
             <div class="input-group">
-              <input type="text" id="lname" name="lname" required autocomplete="off">
-              <label for="lname">Last Name</label>
+              <input type="text" id="FullName" name="FullName" [(ngModel)]="fullName" required autocomplete="off">
+              <label for="FullName">Full Name</label>
             </div>
           </div>
           <div class="input-group">
-            <input type="email" id="email" name="email" required autocomplete="off">
+            <input type="email" id="email" name="email" [(ngModel)]="email" required autocomplete="off">
             <label for="email">Email Address</label>
           </div>
           <div class="input-group">
-            <input type="password" id="password" name="password" required autocomplete="off">
+            <input type="password" id="password" name="password" [(ngModel)]="password" required autocomplete="off">
             <label for="password">Create Password</label>
           </div>
           <button type="submit" class="submit-btn magnetic" #magneticBtn>Initialize Account</button>

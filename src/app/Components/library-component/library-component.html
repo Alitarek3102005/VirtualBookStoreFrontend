@@ -1,4 +1,4 @@
-<!-- home.component.html -->
+
 <header class="hero">
   <div class="hero-video-wrapper">
     <video autoplay muted loop playsinline class="hero-video">
@@ -17,15 +17,16 @@
 </header>
 
 <main class="library-container">
-  <section class="category-shelf gsap-fade">
+  <section class="category-shelf gsap-fade" *ngFor="let category of categories">
     <div class="shelf-header">
-      <h2>Drama & Fiction</h2>
-      <a routerLink="/catalog/fiction">Explore Collection</a>
+      <h2>{{ category.name }}</h2>
+      <a routerLink="/catalog/{{ category.id}}">Explore Collection</a>
+
     </div>
     <div class="shelf-track hide-scrollbar parallax-track-1">
-      <div class="book-card" *ngFor="let book of dramaBooks">
+      <div class="book-card" *ngFor="let book of booksByCategory[category.id]">
         <div class="book-cover">
-          <img [src]="book.coverImage" alt="{{book.title}}">
+          <img src="{{ book.imageUrl }}" alt="{{book.title}}">
         </div>
         <div class="book-info">
           <h3>{{ book.title }}</h3>
@@ -33,28 +34,7 @@
           <div class="price-row">
             <span class="book-price">\${{ book.price }}</span>
             <button class="add-btn" (click)="addToCart(book)">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="category-shelf gsap-fade">
-    <div class="shelf-header">
-      <h2>Architecture & Design</h2>
-      <a routerLink="/catalog/design">Explore Collection</a>
-    </div>
-    <div class="shelf-track hide-scrollbar parallax-track-2">
-      <div class="book-card" *ngFor="let book of designBooks">
-        <div class="book-cover">
-          <img [src]="book.coverImage" alt="{{book.title}}">
-        </div>
-        <div class="book-info">
-          <h3>{{ book.title }}</h3>
-          <p>{{ book.author }}</p>
-          <div class="price-row">
-            <span class="book-price">\${{ book.price }}</span>
-            <button class="add-btn" (click)="addToCart(book)">Add to Cart</button>
+            <button class="add-btn" (click)="viewDetails(book.id)">Details</button>
           </div>
         </div>
       </div>

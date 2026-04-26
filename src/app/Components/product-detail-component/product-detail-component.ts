@@ -1,27 +1,35 @@
-import { Component, AfterViewInit, ElementRef, ViewChild, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, AfterViewInit, ElementRef, ViewChild, Inject, PLATFORM_ID, OnDestroy, OnInit } from '@angular/core';
+import { CurrencyPipe, isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
+import { BookService } from '../../Services/book-service';
+import { Book } from '../../Models/book';
 
 gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, CurrencyPipe],
   templateUrl: './product-detail-component.html',
   styleUrls: ['./product-detail-component.css']
 })
-export class ProductDetailComponent implements AfterViewInit, OnDestroy {
+export class ProductDetailComponent implements AfterViewInit, OnDestroy,OnInit {
   @ViewChild('magneticBtn') magneticBtn!: ElementRef<HTMLButtonElement>;
   quantity = 1;
 
   private lenis!: Lenis;
   private rafId: number | null = null;
-
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  private bookID: number = 0;
+  public book!: Book;
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+  private bookService: BookService,
+  private _ActivatedRoute:ActivatedRoute,
+  private _router: Router
+) {}
+  
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -73,5 +81,14 @@ export class ProductDetailComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.rafId) cancelAnimationFrame(this.rafId);
     if (this.lenis) this.lenis.destroy();
+  }
+  ngOnInit(): void {
+    this._ActivatedRoute.paramMap.subscribe(paramMap => {
+      const bookId = Number(paramMap.get('id'));
+      this.bookID = bookId;
+    });
+    this.bookService.getBooksById(this.bookID).subscribe(book => {
+      this.book = book;
+    });
   }
 }

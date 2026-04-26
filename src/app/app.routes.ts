@@ -15,6 +15,8 @@ import { AdminDashboardComponent } from './Components/admin-dashboard-component/
 import { OrderManagementComponent } from './Components/order-management-component/order-management-component';
 import { ContentModerationComponent } from './Components/content-moderation-component/content-moderation-component';
 import { UserManagementComponent } from './Components/user-management-component/user-management-component';
+import { adminGuard } from './Guards/admin-guard';
+import { AddBookComponent } from './Components/add-book-component/add-book-component';
 
 export const routes: Routes = [
     {path: '', component: AthenaArchiveComponent},
@@ -25,13 +27,15 @@ export const routes: Routes = [
     {path: "library", component:LibraryComponent},
     {path: "order-detail/:id", component:OrderManifestComponent},
     {path: "order-history/:id", component:OrderHistoryComponent},
-    {path: "profile/:id", component:ProfileComponent},
+    {path: "profile", component:ProfileComponent},
     {path: "submit-review/:id", component:SubmitReviewComponent},
-    {path: "admin/inventory", component:VolumeEditorComponent},
-    {path: "admin", component:AdminDashboardComponent},
-    {path: "admin/orders", component:OrderManagementComponent},
-    {path: "admin/reviews", component:ContentModerationComponent},
-    {path: "admin/users", component:UserManagementComponent},
+    {path: "admin/inventory", component:VolumeEditorComponent,canActivate: [adminGuard]},
+    {path: "admin-dashboard", component:AdminDashboardComponent,canActivate: [adminGuard]},
+    {path: "admin/orders", component:OrderManagementComponent,canActivate: [adminGuard]},
+    {path: "admin/reviews", component:ContentModerationComponent,canActivate: [adminGuard]},
+    {path: "admin/users", component:UserManagementComponent,canActivate: [adminGuard]},
+    {path: "logout", component:AuthComponent},
+    {path:"add-book",component : AddBookComponent,canActivate: [adminGuard]},
     { path: '**', redirectTo: '' },
     
 ];

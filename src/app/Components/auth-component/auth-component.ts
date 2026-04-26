@@ -1,11 +1,13 @@
 import { Component, AfterViewInit, ElementRef, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import gsap from 'gsap';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../Services/auth-service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-auth',
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule,FormsModule],
   standalone: true,
   templateUrl: './auth-component.html',
   styleUrls: ['./auth-component.css']
@@ -13,8 +15,14 @@ import { Router, RouterLink } from '@angular/router';
 export class AuthComponent implements AfterViewInit {
   @ViewChild('gsapImg') gsapImg!: ElementRef<HTMLImageElement>;
   @ViewChild('magneticBtn') magneticBtn!: ElementRef<HTMLButtonElement>;
+  @ViewChild('loginForm') loginForm!: ElementRef<HTMLFormElement>;
+  username: string = '';
+  password: string = '';
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+  private _router: Router,
+  private authservice: AuthService
+) {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -51,4 +59,23 @@ export class AuthComponent implements AfterViewInit {
       ease: 'power3.out'
     }, '-=1.5');
   }
+  login(){
+    const credentials = { username: this.username, password: this.password };
+    this.authservice.login(credentials).subscribe({
+     next: (response) => {
+        console.log('Login successful!');
+        const role = this.authservice.getUserRole();
+
+        if (role === 'ADMIN') {
+          this._router.navigate(['/admin-dashboard']); 
+        } else {
+          this._router.navigate(['/']); 
+        }
+      },
+      error: (error) => {
+        console.error('Login failed:', error);
+      }
+    });
+  }
+  
 }

@@ -1,10 +1,11 @@
-import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
+import { AuthService } from '../../Services/auth-service';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,7 +34,7 @@ interface UserProfile {
   templateUrl: './profile-component.html',
   styleUrls: ['./profile-component.css']
 })
-export class ProfileComponent implements AfterViewInit, OnDestroy {
+export class ProfileComponent implements AfterViewInit, OnDestroy, OnInit {
   user: UserProfile = {
     firstName: 'Marcus',
     lastName: 'Chen',
@@ -54,7 +55,23 @@ export class ProfileComponent implements AfterViewInit, OnDestroy {
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+  private authService: AuthService
+) { }
+
+  ngOnInit(): void {
+    this.authService.getUserData().subscribe((userData) => {
+      this.user = {
+        firstName: userData.username,
+        lastName: userData.lastName,
+        email: userData.email,
+        avatar: userData.avatar || 'MC',
+        memberSince: userData.memberSince || '2024',
+        ordersPlaced: userData.ordersPlaced || 12,
+        reviewsPublished: userData.reviewsPublished || 4
+      };
+    });
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {

@@ -1,0 +1,82 @@
+<div class="editor-container">
+  <div class="workspace-header">
+    <div class="page-title">
+      <h1>Add New <span>Volume</span></h1>
+    </div>
+  </div>
+
+  <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" class="form-layout">
+    
+    <aside class="media-column">
+      <div class="upload-zone" [class.has-image]="coverImagePreview">
+        <img *ngIf="coverImagePreview" alt="{{coverImagePreview}}" src="{{coverImagePreview}}" class="preview-image">
+        
+        <div class="upload-content" *ngIf="!coverImagePreview">
+          <div class="upload-icon">⇪</div>
+          <div class="upload-text">Upload Cover Image</div>
+        </div>
+        
+        <input type="file" class="upload-input" (change)="onFileSelected($event)" accept="image/*">
+      </div>
+    </aside>
+
+    <section class="metadata-column">
+      <div class="form-grid">
+        
+        <div class="input-group full-width">
+          <input type="text" formControlName="title" placeholder=" " required>
+          <label>Volume Title</label>
+          <span class="error" *ngIf="bookForm.get('title')?.invalid && bookForm.get('title')?.touched">Title is required</span>
+        </div>
+
+        <div class="input-group full-width">
+          <input type="text" formControlName="author" placeholder=" " required>
+          <label>Author Name</label>
+        </div>
+
+        <div class="input-group">
+          <select formControlName="publisher_id" required>
+            <option value="" disabled selected hidden></option>
+            <option *ngFor="let user of publisherUsers" [value]="user.id">
+              {{ user.username }}
+            </option>
+          </select>
+          <label>Publisher Entity</label>
+        </div>
+
+        <div class="input-group">
+          <select formControlName="genre" required>
+            <option value="" disabled selected hidden></option>
+            <option *ngFor="let genre of Categories" [value]="genre.id">
+              {{ genre.name }}
+            </option>
+          </select>
+          <label>Primary Genre</label>
+        </div>
+
+        <div class="input-group">
+          <input type="number" formControlName="price" placeholder=" " step="0.01" min="0" required>
+          <label>Retail Price ($)</label>
+        </div>
+
+        <div class="input-group">
+          <input type="number" formControlName="quantity" placeholder=" " min="0" required>
+          <label>Initial Stock Quantity</label>
+        </div>
+
+        <div class="input-group full-width">
+          <textarea formControlName="description" placeholder=" " required></textarea>
+          <label>Synopsis / Description</label>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Save to Archive</span>
+          <span *ngIf="isSubmitting">Encrypting Data...</span>
+        </button>
+      </div>
+    </section>
+  </form>
+</div>
