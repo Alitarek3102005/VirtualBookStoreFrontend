@@ -1,57 +1,74 @@
-import { Component, AfterViewInit, OnDestroy, ElementRef, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ElementRef, ViewChild, Inject, PLATFORM_ID, OnInit, NgZone } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
+import { CartService } from '../../Services/cart-service';
+import { BookService } from '../../Services/book-service';
+import { AuthService } from '../../Services/auth-service';
+import { Cart } from '../../Models/cart';
+import { Book } from '../../Models/book';
+import { CartItem } from '../../Models/cart-item';
+import { OrderService } from '../../Services/order-service';
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface CartItem {
-  id: number;
-  title: string;
-  author: string;
-  format: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [RouterLink, CommonModule, DecimalPipe],
-  templateUrl: './cart-component.html',
+  imports: [CommonModule, DecimalPipe,RouterLink],
+templateUrl: './cart-component.html',
   styleUrls: ['./cart-component.css']
 })
-export class CartComponent implements AfterViewInit, OnDestroy {
+export class CartComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild('magneticBtn') magneticBtn!: ElementRef<HTMLAnchorElement>;
-
-  cartItems: CartItem[] = [
-    {
-      id: 1,
-      title: 'The Silent Echo',
-      author: 'Elena Rostov',
-      format: 'Hardcover',
-      price: 24.00,
-      image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400',
-      quantity: 1
-    },
-    {
-      id: 2,
-      title: 'Brutalist Forms',
-      author: 'Institute of Design',
-      format: 'Digital Edition',
-      price: 65.00,
-      image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=400',
-      quantity: 1
-    }
-  ];
+  userId: number | null = null;
+  Cart!:Cart;
+  Books: Book[] = [];
+  public cartDisplayItems: any[] = []; 
+  public cartTotalPrice: number = 0;
+  trackByCartItemId(item: CartItem): number {
+    return item.id;
+  }
 
   private lenis!: Lenis;
   private rafId: number | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+  private cartService: CartService,
+  private bookService: BookService,
+  private authService: AuthService,
+  private orderService: OrderService,
+  private router: Router,
+) {}
+
+
+  ngOnInit(): void {
+    this.userId = this.authService.getCurrentUserId();
+    this.cartService.GetUserCart(this.userId || 0).subscribe({
+      next: (cart) => {
+        this.Cart = cart;
+        if (this.Cart && this.Cart.items) {
+          this.Cart.items.forEach((item) => {
+            this.bookService.getBooksById(item.bookId).subscribe({
+              next: (book) => {
+                this.cartDisplayItems.push({
+                  cartItemId: item.id,       
+                  quantity: item.quantity,  
+                  bookDetails: book    
+                });
+                this.cartTotalPrice += (item.quantity * book.price);
+              }
+            });
+          });
+        }
+      }
+    });
+  }
+  getBookFromCartItem(cartItem: CartItem): Book | undefined {
+    return this.Books.find(book => book.id === cartItem.id);
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -104,27 +121,36 @@ export class CartComponent implements AfterViewInit, OnDestroy {
   }
 
   get subtotal(): number {
-    return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }
-
-  get taxes(): number {
-    return this.subtotal * 0.08;
+    return this.cartDisplayItems.reduce((sum, item) => sum + item.bookDetails.price * item.quantity, 0);
   }
 
   get grandTotal(): number {
-    return this.subtotal + this.taxes;
+    return this.subtotal ;
   }
-
-  increaseQuantity(item: CartItem): void {
+  increaseQuantity(item: any): void {
     item.quantity++;
+    this.updateQuantity(item.bookDetails.id, item.quantity); 
   }
 
-  decreaseQuantity(item: CartItem): void {
-    if (item.quantity > 1) item.quantity--;
+  decreaseQuantity(item: any): void {
+    if (item.quantity > 1) {
+      item.quantity--;
+      this.updateQuantity(item.bookDetails.id, item.quantity);
+    }
+  }
+  updateQuantity(bookId: number, quantity: number): void {
+    this.cartService.updateCartItemQuantity(this.userId || 0, bookId, quantity).subscribe({
+      next: () => {
+        console.log('Cart item quantity updated successfully');
+      },
+      error: (err) => {
+        console.error('Error updating cart item quantity:', err);
+      }
+    });
   }
 
   removeItem(item: CartItem, elementRef: HTMLElement): void {
-    const index = this.cartItems.findIndex(i => i.id === item.id);
+    const index = this.cartDisplayItems.findIndex(i => i.cartItemId === item.id);
     if (index === -1) return;
 
     gsap.to(elementRef, {
@@ -136,12 +162,95 @@ export class CartComponent implements AfterViewInit, OnDestroy {
       marginBottom: 0,
       duration: 0.4,
       onComplete: () => {
-        this.cartItems.splice(index, 1);
+        this.cartDisplayItems.splice(index, 1);
+      }
+    });
+  }
+  trackByUniqueCartItem(index: number, item: any): number {
+    return item.cartItemId;
+  }
+  
+  removeFromCart(cartItemId: number, elementRef: HTMLElement): void {
+    const index = this.cartDisplayItems.findIndex((i) => i.cartItemId === cartItemId);
+    const item = this.cartDisplayItems[index];
+    if (!item || index === -1) return;
+    this.cartService.RemoveItemFromCart(this.userId || 0, item.bookDetails.id).subscribe({
+      next: () => {
+        this.executeRemoveAnimation(index, elementRef);
+      },
+      error: (err) => {
+        console.warn('Backend threw an error, but forcing UI update anyway.', err);
+        this.executeRemoveAnimation(index, elementRef);
       }
     });
   }
 
-  trackById(index: number, item: CartItem): number {
-    return item.id;
+  private executeRemoveAnimation(index: number, elementRef: HTMLElement): void {
+    gsap.to(elementRef, {
+      opacity: 0,
+      height: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      marginTop: 0,
+      marginBottom: 0,
+      duration: 0.4,
+      onComplete: () => {
+        gsap.set(elementRef, { clearProps: 'all' });
+        this.cartDisplayItems.splice(index, 1);
+      }
+    });
+  }
+  addToCart(bookId: number, quantity: number): void {
+    this.cartService.addItemToCart(this.userId || 0, bookId, quantity).subscribe(
+      {
+        next: () => {
+          console.log('Item added to cart successfully');
+        },
+        error: (err) => {
+          console.error('Error adding item to cart:', err);
+        }
+      }
+    );
+  }
+  clearCart(): void {
+    this.cartService.clearCart(this.userId || 0).subscribe({
+      next: () => {
+        const allCartItems = document.querySelectorAll('.cart-item');
+        gsap.to(allCartItems, {
+          opacity: 0,
+          height: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+          marginTop: 0,
+          marginBottom: 0,
+          duration: 0.4,
+          stagger: 0.1,
+          onComplete: () => {
+            gsap.set(allCartItems, { clearProps: 'all' });
+            this.cartDisplayItems = [];
+            console.log('Cart cleared successfully');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error clearing cart:', err);
+      }
+    });
+  }
+  checkout(): void {
+    if (!this.userId) {
+      alert('Please log in to proceed with checkout.');
+      return;
+    }
+    this.orderService.CheckOut(this.userId).subscribe({
+      next: () => {
+        alert('Checkout successful! Your order is being processed.');
+        this.router.navigate(['/order-history']);
+      },
+      error: (err) => {
+        console.error('Error during checkout:', err);
+        alert('An error occurred during checkout. Please try again later.');
+      }
+    });
   }
 }

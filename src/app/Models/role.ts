@@ -1,3 +1,3 @@
 export interface Role {
-    role: "ADMIN" | "PUBLISHER" | "READER"|"USER";
+    role: "ADMIN" | "PUBLISHER"|"USER";
 }

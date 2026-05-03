@@ -1,4 +1,3 @@
-<!-- order-management.component.html -->
 <div class="noise-overlay"></div>
 
 <div class="toast-container">
@@ -14,35 +13,65 @@
 
 <div class="slide-over" #slidePanel [class.active]="slideOverVisible">
   <div class="slide-header">
-    <div class="slide-title">Manifest {{ selectedOrder?.id }}</div>
+    <div class="slide-title">Manifest ORD-00{{ selectedOrder?.id }}</div>
     <button class="btn-close" (click)="closeSlideOver()">✕</button>
   </div>
 
   <div class="slide-body" *ngIf="selectedOrder">
     <div class="detail-block">
-      <span class="detail-label">Customer Profile</span>
-      <div class="detail-value">{{ selectedOrder.customerName }}</div>
-      <div class="detail-value" style="color: var(--text-muted); font-family: var(--font-mono);">
-        {{ selectedOrder.customerEmail }}
+      <span class="detail-label">System Routing</span>
+      <div class="detail-value">Reader Entity [UID-{{ selectedOrder.readerId }}]</div>
+      <div class="detail-value" style="color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px;">
+        Origin Cart: {{ selectedOrder.cartId ? 'CRT-' + selectedOrder.cartId : 'Direct Purchase' }}
       </div>
     </div>
-
+    <div class="detail-block">
+      <span class="detail-label">Lifecycle Timestamps</span>
+      <div class="detail-value" style="font-size: 0.9rem;">Created: {{ selectedOrder.createdAt | date:'medium' }}</div>
+      <div class="detail-value" style="font-size: 0.9rem; color: var(--text-muted);">Updated: {{ selectedOrder.updatedAt | date:'medium' }}</div>
+    </div>
     <div class="detail-block">
       <span class="detail-label">Financial Transaction</span>
       <div class="detail-value" style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 600;">
-        \${{ selectedOrder.total | number:'1.2-2' }}
-      </div>
-      <div class="detail-value" style="color: var(--success); font-size: 0.8rem; margin-top: 5px;">
-        Payment Captured
+        ${{ selectedOrder.totalPrice | number:'1.2-2' }}
       </div>
     </div>
-
     <div class="detail-block">
-      <span class="detail-label">Requested Inventory ({{ selectedOrder.items.length }} Items)</span>
-      <div class="manifest-items">
-        <div class="manifest-item" *ngFor="let item of selectedOrder.items">
-          <span class="manifest-item-title">{{ item }}</span>
+      <span class="detail-label">Requested Inventory ({{ selectedOrder.orderItems.length }} Items)</span>
+      
+      <div class="manifest-items" *ngIf="selectedOrder.orderItems.length > 0">
+        <div class="manifest-item" *ngFor="let item of selectedOrder.orderItems">
+        
+          <ng-container *ngIf="loadedBooks[item.bookId] as book; else loadingBook">
+            <div class="item-visual-row">
+              <img [src]="book.imageUrl" alt="Cover" class="slide-book-thumb">
+              <div class="item-details">
+                <div class="item-title-row">
+                  <span class="manifest-item-title">{{ book.title | uppercase }}</span>
+                  <span class="manifest-item-price">${{ item.price | number:'1.2-2' }}</span>
+                </div>
+                <div class="manifest-item-sub">By {{ book.author }}</div>
+                <div class="manifest-item-meta">Qty: {{ item.quantity }} <span style="margin: 0 4px; color: #555;">|</span> Cat: {{ book.categoryName }}</div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #loadingBook>
+            <div class="item-visual-row">
+              <div class="item-thumb-placeholder"></div>
+              <div class="item-details">
+                <div style="color: var(--text-muted); font-size: 0.8rem;">
+                  <span class="spinner" style="display:inline-block; width: 10px; height: 10px; border-width: 2px; margin-right: 8px;"></span>
+                  Decrypting volume data [ID: {{ item.bookId }}]...
+                </div>
+              </div>
+            </div>
+          </ng-template>
+
         </div>
+      </div>
+      
+      <div *ngIf="selectedOrder.orderItems.length === 0" style="color: var(--warning); font-size: 0.8rem; margin-top: 10px;">
+        ⚠ No inventory items found in this manifest payload.
       </div>
     </div>
   </div>
@@ -50,13 +79,12 @@
   <div class="status-update-form" *ngIf="selectedOrder">
     <label class="form-label">Update Logistics Status</label>
     <select class="status-select" [(ngModel)]="newStatus">
-      <option value="Pending">Pending Validation</option>
-      <option value="Shipped">Shipped / Dispatched</option>
-      <option value="Delivered">Delivered</option>
-      <option value="Cancelled">Cancelled / Refunded</option>
+      <option value="PENDING">PENDING</option>
+      <option value="PAID">PAID</option>
+      <option value="CANCELLED">CANCELLED</option>
+      <option value="FAILED">FAILED</option>
     </select>
-    <button class="btn btn-primary" style="width: 100%;" (click)="saveOrderStatus()">
-      <span class="spinner"></span>
+    <button class="btn btn-primary" style="width: 100%;" (click)="updateOrderStatus(selectedOrder.id, newStatus)">
       <span class="btn-text">Confirm Status Update</span>
     </button>
   </div>
@@ -70,20 +98,19 @@
   <div class="nav-menu">
     <div class="nav-section">
       <div class="nav-title">Analytics</div>
-      <a routerLink="/admin" class="nav-link" routerLinkActive="active">Overview</a>
+      <a routerLink="/admin" class="nav-link active" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Overview</a>
+      <a routerLink="/admin/reports" class="nav-link">Revenue Reports</a>
     </div>
     <div class="nav-section">
       <div class="nav-title">Operations</div>
-      <a routerLink="/admin/orders" class="nav-link active" routerLinkActive="active">
-        Order Operations
-        <span class="badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
-      </a>
-      <a routerLink="/admin/inventory" class="nav-link">Inventory Control</a>
+      <a routerLink="/admin/orders" class="nav-link">Order Fulfillment</a>
+      <a routerLink="/add-book" class="nav-link">Add New Book</a>
       <a routerLink="/admin/catalog" class="nav-link">Catalog Management</a>
     </div>
     <div class="nav-section">
       <div class="nav-title">Administration</div>
       <a routerLink="/admin/users" class="nav-link">User Directory</a>
+      <a routerLink="/admin/reviews" class="nav-link">Reviews</a>
     </div>
   </div>
 </aside>
@@ -91,7 +118,7 @@
 <main class="main-content">
   <header class="topbar">
     <div class="search-container">
-      <input type="text" id="global-search" #globalSearch placeholder="Search by Order ID, Customer Name, or Email...">
+      <input type="text" id="global-search" #globalSearch placeholder="Search by Order ID or User UID...">
       <span class="shortcut-hint">Ctrl K</span>
     </div>
   </header>
@@ -105,10 +132,11 @@
     <div class="filter-bar gsap-slide">
       <select class="filter-select" [(ngModel)]="statusFilter">
         <option>All Statuses</option>
-        <option>Pending</option>
-        <option>Shipped</option>
-        <option>Delivered</option>
-        <option>Cancelled</option>
+        <option value="PENDING">PENDING</option>
+        <option value="PAID">PAID</option>
+        <option value="DELIVERED">DELIVERED</option>
+        <option value="CANCELLED">CANCELLED</option>
+        <option value="FAILED">FAILED</option>
       </select>
       <select class="filter-select" [(ngModel)]="dateFilter">
         <option>Last 30 Days</option>
@@ -121,33 +149,34 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Timestamp</th>
-              <th>Customer Details</th>
+              <th>Manifest ID</th>
+              <th>Timestamps</th>
+              <th>System Routing</th>
               <th>Current Status</th>
-              <th class="td-currency">Total Pay</th>
+              <th class="td-currency">Total Clearance</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let order of filteredOrders">
-              <td class="td-id">{{ order.id }}</td>
+              <td class="td-id">ORD-00{{ order.id }}</td>
               <td>
-                {{ order.timestamp }}
-                <span class="td-sub">{{ order.timeCode }}</span>
+                {{ order.createdAt | date:'MMM d, y' }}
+                <span class="td-sub">{{ order.createdAt | date:'shortTime' }}</span>
               </td>
               <td>
-                {{ order.customerName }}
-                <span class="td-sub">{{ order.customerEmail }}</span>
+                UID-{{ order.readerId }}
+                <span class="td-sub" *ngIf="order.cartId">CRT-{{ order.cartId }}</span>
+                <span class="td-sub" *ngIf="!order.cartId" style="opacity: 0.5;">Direct Action</span>
               </td>
               <td>
                 <span class="status-badge" [ngClass]="getStatusClass(order.status)">
-                  {{ order.status }}
+                  {{ order.status | titlecase }}
                 </span>
               </td>
-              <td class="td-currency">\${{ order.total | number:'1.2-2' }}</td>
+              <td class="td-currency">${{ order.totalPrice | number:'1.2-2' }}</td>
               <td>
-                <button class="btn" (click)="openOrderManifest(order)">Manage</button>
+                <button class="btn" (click)="openOrderManifest(order)">Inspect</button>
               </td>
             </tr>
           </tbody>

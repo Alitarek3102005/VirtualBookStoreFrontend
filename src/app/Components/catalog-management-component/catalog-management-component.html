@@ -1,0 +1,137 @@
+<div class="noise-overlay"></div>
+
+<!-- Toast Notification -->
+<div class="toast-container">
+  <div class="toast" *ngIf="toastVisible" [style.borderLeftColor]="getToastColor()">
+    <div [style.color]="getToastColor()" style="font-size: 1.2rem;">{{ getToastIcon() }}</div>
+    <div>{{ toastMessage }}</div>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a routerLink="/" class="logo">ATHENA</a>
+    <div class="sys-badge">Production Environment</div>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-section">
+      <div class="nav-title">Analytics</div>
+      <a routerLink="/admin" class="nav-link">Overview</a>
+      <a routerLink="/admin/reports" class="nav-link">Revenue Reports</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Operations</div>
+      <a routerLink="/admin/orders" class="nav-link">Order Fulfillment</a>
+      <a routerLink="/add-book" class="nav-link">Add New Book</a>
+      <a routerLink="/admin/catalog" class="nav-link active" routerLinkActive="active">Catalog Management</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Administration</div>
+      <a routerLink="/admin/users" class="nav-link">User Directory</a>
+      <a routerLink="/admin/reviews" class="nav-link">Reviews</a>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="topbar">
+    <div class="search-container">
+      <input type="text" id="global-search" #globalSearch [(ngModel)]="searchTerm" placeholder="Search volumes by title, author, or publisher entity...">
+      <span class="shortcut-hint">Ctrl K</span>
+    </div>
+  </header>
+
+  <div class="dashboard-body">
+    
+    <div class="page-header gsap-slide">
+      <h1 class="page-title">Catalog Inventory</h1>
+      <a routerLink="/add-book" class="btn btn-primary">Initialize New Volume</a>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="metrics-grid gsap-slide">
+      <div class="metric-box">
+        <div class="metric-title">Total Active Volumes</div>
+        <div class="metric-value">{{ books.length }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title" style="color: var(--warning);">Low Stock Alerts</div>
+        <div class="metric-value" style="color: var(--warning);">{{ lowStockCount }}</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Total Asset Value</div>
+        <div class="metric-value">${{ totalInventoryValue | number:'1.2-2' }}</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar gsap-slide">
+      <select class="filter-select" [(ngModel)]="categoryFilter">
+        <option>All Categories</option>
+        <option *ngFor="let cat of availableCategories" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-card gsap-fade">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Volume Detail</th>
+              <th>Classification & Publisher</th>
+              <th class="td-number">Retail Price</th>
+              <th class="td-number">Stock Level</th>
+              <th class="td-actions">Operations</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let book of filteredBooks">
+              
+              <!-- Cover, Title, and Author -->
+              <td class="td-volume">
+                <img [src]="book.imageUrl" alt="Cover" class="book-thumbnail">
+                <div class="volume-info">
+                  <div class="volume-title">{{ book.title }}</div>
+                  <div class="volume-author">BY {{ book.author | uppercase }}</div>
+                  <div class="volume-id">UID: {{ book.id }}</div>
+                </div>
+              </td>
+
+              <!-- Category and Publisher -->
+              <td>
+                <span class="category-badge">{{ book.categoryName }}</span>
+                <span class="td-sub" style="margin-top: 8px;">PUB: {{ book.publisherName }}</span>
+              </td>
+
+              <!-- Price -->
+              <td class="td-number td-currency">${{ book.price | number:'1.2-2' }}</td>
+
+              <!-- Stock Quantity -->
+              <td class="td-number">
+                <span [ngClass]="{'stock-critical': book.quantity < 10, 'stock-healthy': book.quantity >= 10}">
+                  {{ book.quantity }} Units
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="td-actions">
+                <div class="action-group">
+                  <button class="icon-btn" (click)="editBook(book.id)" title="Edit Volume parameters">✎</button>
+                  <button class="icon-btn danger" (click)="deleteBook(book.id, book.title)" title="Delete Volume from database">🗑</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="filteredBooks.length === 0">
+              <td colspan="5" class="empty-state">
+                No volumes match current database query.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>

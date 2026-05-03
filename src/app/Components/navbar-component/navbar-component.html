@@ -5,9 +5,10 @@
         <li><a routerLink="/library" routerLinkActive="active">Library</a></li>
         <li>
           <a routerLink="/login"  routerLinkActive="active"><span *ngIf="!isLoggedIn">Login</span></a>
-          <a routerLink="/logout" (click)="logout()" routerLinkActive="active"><span *ngIf="isLoggedIn">Logout</span></a>
+          <a routerLink="/login" (click)="logout()" routerLinkActive="active"><span *ngIf="isLoggedIn">Logout</span></a>
         </li>
         <li><a routerLink="/cart" routerLinkActive="active">Cart</a></li>
+        <li *ngIf="isLoggedIn && IsAdmin" ><a routerLink="/admin-dashboard"  routerLinkActive="active">Admin-Dashboard</a></li>
       </ul>
       <div class="nav-meta">The Infinite BookStore</div>
     </nav>

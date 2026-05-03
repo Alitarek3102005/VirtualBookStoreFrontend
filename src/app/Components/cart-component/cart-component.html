@@ -4,30 +4,36 @@
       <div class="cart-header gsap-slide">
         <h1>Active <span>Manifest.</span></h1>
         <p>Review your selections before initialization</p>
+        <div>
+          <span class="cart-count">{{ cartDisplayItems.length }} {{ cartDisplayItems.length === 1 ? 'Volume' : 'Volumes' }}</span>
+          <button class="continue-btn magnetic" routerLink="/library" #magneticBtn>Continue Browsing</button>
+          <button class="clear-btn magnetic" (click)="clearCart()" #magneticBtn [class.disabled]="cartDisplayItems.length === 0">Clear Manifest</button>
+        </div>
+        
       </div>
       <div class="cart-layout">
         <div class="cart-items-wrapper gsap-fade">
-          <div class="cart-labels" [class.hidden]="cartItems.length === 0">
+          <div class="cart-labels" [class.hidden]="cartDisplayItems.length === 0">
             <div>Title / Details</div>
             <div class="label-qty">Quantity</div>
             <div class="label-total">Line Total</div>
           </div>
           <div id="cart-items-container">
             <div
-              *ngFor="let item of cartItems; trackBy: trackById"
+              *ngFor="let item of cartDisplayItems; trackBy: trackByUniqueCartItem"
               class="cart-item"
-              [attr.data-price]="item.price"
+              [attr.data-price]="item.bookDetails.price"
               #cartItem
             >
               <div class="item-details">
                 <div class="item-cover">
-                  <img [src]="item.image" alt={{item.title}}>
+                  <img src="{{ item.bookDetails.imageUrl }}" alt="{{ item.bookDetails.title }}">
                 </div>
                 <div class="item-info">
-                  <h2>{{ item.title }}</h2>
-                  <p>{{ item.author }} • {{ item.format }}</p>
-                  <div class="item-price">\${{ item.price | number:'1.2-2' }}</div>
-                  <button class="remove-btn" (click)="removeItem(item, cartItem)">Remove Volume</button>
+                  <h2>{{ item.bookDetails.title }}</h2>
+                  <p>{{ item.bookDetails.price }} </p>
+                  <div class="item-price">\${{ item.bookDetails.price | number:'1.2-2' }}</div>
+                  <button class="remove-btn" (click)="removeFromCart(item.cartItemId, cartItem)">Remove Volume</button>
                 </div>
               </div>
               <div class="item-qty">
@@ -37,10 +43,10 @@
                   <button class="qty-btn" (click)="increaseQuantity(item)">+</button>
                 </div>
               </div>
-              <div class="item-total-price">\${{ item.price * item.quantity | number:'1.2-2' }}</div>
+              <div class="item-total-price">\${{ item.bookDetails.price * item.quantity | number:'1.2-2' }}</div>
             </div>
           </div>
-          <div class="empty-cart-msg" [style.display]="cartItems.length === 0 ? 'block' : 'none'">
+          <div class="empty-cart-msg" [style.display]="cartDisplayItems.length === 0 ? 'block' : 'none'">
             Your archive is currently empty.
           </div>
         </div>
@@ -55,15 +61,15 @@
               <span>Digital Delivery</span>
               <span>\$0.00</span>
             </div>
-            <div class="summary-row">
+            <!-- <div class="summary-row">
               <span>Taxes (Estimated)</span>
               <span>\${{ taxes | number:'1.2-2' }}</span>
-            </div>
+            </div> -->
             <div class="summary-total">
               <span>Total</span>
               <span>\${{ grandTotal | number:'1.2-2' }}</span>
             </div>
-            <a class="checkout-btn magnetic" #magneticBtn [class.disabled]="cartItems.length === 0">Initialize Checkout</a>
+            <a (click)="checkout()" class="checkout-btn magnetic" #magneticBtn [class.disabled]="cartDisplayItems.length === 0">Initialize Checkout</a>
           </div>
         </div>
       </div>

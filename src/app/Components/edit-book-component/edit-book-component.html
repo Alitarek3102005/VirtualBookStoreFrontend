@@ -1,0 +1,84 @@
+<div class="noise-overlay"></div>
+
+<div class="editor-container">
+  <header class="workspace-header">
+    <div class="breadcrumbs">
+      <a href="/inventory">Inventory</a>
+      <span>/</span>
+      <span>Edit Volume</span>
+      <span>/</span>
+      <span class="active-crumb">{{ book.id }}</span>
+    </div>
+  </header>
+
+  <main class="editor-layout">
+    
+    <aside class="media-column">
+      <div class="cover-display">
+        <img [src]="book.imageUrl" alt="Book Cover" class="book-cover">
+        <div class="cover-overlay">
+          <span class="locked-badge">🔒 Media Locked</span>
+        </div>
+      </div>
+
+      <div class="locked-data-card">
+        <h3 class="card-title">Immutable Records</h3>
+        
+        <div class="locked-group">
+          <span class="locked-label">Volume Title</span>
+          <div class="locked-value title-value">{{ book.title }}</div>
+        </div>
+        
+        <div class="locked-group">
+          <span class="locked-label">Author</span>
+          <div class="locked-value">{{ book.author }}</div>
+        </div>
+        
+        <div class="locked-group">
+          <span class="locked-label">Publisher Entity</span>
+          <div class="locked-value">{{ book.publisherName }}</div>
+        </div>
+
+        <div class="locked-group">
+          <span class="locked-label">Synopsis</span>
+          <div class="locked-value description-value">{{ book.description }}</div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="metadata-column">
+      <div class="editable-card">
+        <div class="section-header">
+          <h2>Mutable <span>Parameters.</span></h2>
+          <p>Adjust the active market data for this volume.</p>
+        </div>
+
+        <form [formGroup]="editForm" (ngSubmit)="onSubmit()" class="form-grid">
+          
+          <div class="input-group full-width">
+            <select formControlName="category" required>
+              <option value="">Select a category</option>
+              <option *ngFor="let category of categories" [value]="category.id" [disabled]="category.name === book.categoryName">
+                {{ category.name }}
+              </option>
+            </select>
+            <label>Category (Genre)</label>
+          </div>
+
+          <div class="input-group">
+            <span class="input-addon">$</span>
+            <input type="number" formControlName="price" class="has-addon" step="0.01" min="0" required>
+            <label style="left: 20px;">Retail Price</label>
+          </div>
+
+          <div class="input-group">
+            <input type="number" formControlName="quantity" min="0" required>
+            <label>Available Stock</label>
+          </div>
+          <button class="btn" (click)="onSubmit()" type="submit" [disabled]="editForm.invalid">Update Volume</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>

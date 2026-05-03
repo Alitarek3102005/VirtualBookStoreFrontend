@@ -1,88 +1,53 @@
-// content-moderation.component.ts
-import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
+import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { isPlatformBrowser, CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import gsap from 'gsap';
 import Lenis from '@studio-freight/lenis';
-
-interface Review {
-  id: string;
-  book: string;
-  author: string;
-  email: string;
-  rating: number;
-  text: string;
-  snippet: string;
-  status: 'Published' | 'Pending' | 'Flagged' | 'Removed';
-  date: string;
-}
+import { AuthService } from '../../Services/auth-service';
+import { ReviewsService } from '../../Services/reviews-service';
+import { Reviews } from '../../Models/reviews';
+import { StarsPipe } from '../../Pipes/stars-pipe';
 
 @Component({
   selector: 'app-content-moderation',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive,CommonModule, DecimalPipe, FormsModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, DecimalPipe, FormsModule,StarsPipe],
   templateUrl: './content-moderation-component.html',
   styleUrls: ['./content-moderation-component.css']
 })
-export class ContentModerationComponent implements AfterViewInit, OnDestroy {
+export class ContentModerationComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild('globalSearch') globalSearch!: ElementRef<HTMLInputElement>;
 
-  // Filters
-  statusFilter: string = 'All Statuses';
   ratingFilter: string = 'All Ratings';
 
-  // Reviews data
-  reviews: Review[] = [
-    {
-      id: 'RV001',
-      book: 'Brutalist Forms',
-      author: 'John Doe',
-      email: 'j.doe@spam.com',
-      rating: 1,
-      text: 'This book is absolute garbage. The author has no idea what they are talking about and the print quality is a joke. I demand a refund immediately before I report this site.',
-      snippet: '"This book is absolute garbage. The author has no idea what they are talking about and the print quality is a joke..."',
-      status: 'Flagged',
-      date: 'Oct 18, 2025'
-    },
-    {
-      id: 'RV002',
-      book: 'The Silent Echo',
-      author: 'Sarah Jenkins',
-      email: 's.jenkins@domain.com',
-      rating: 5,
-      text: 'An absolute masterpiece of modern science fiction. Rostov perfectly balances hard scientific concepts with deep, emotional character development. I couldn\'t put it down once the relay went offline.',
-      snippet: '"An absolute masterpiece of modern science fiction. Rostov perfectly balances hard scientific concepts with deep..."',
-      status: 'Pending',
-      date: 'Oct 18, 2025'
-    },
-    {
-      id: 'RV003',
-      book: 'Design Systems',
-      author: 'Marcus Chen',
-      email: 'marcus.c@example.com',
-      rating: 4,
-      text: 'Very solid reference material. I keep it on my desk while working. The only issue is that chapter 3 feels a bit rushed compared to the rest of the volume. Otherwise, excellent resource.',
-      snippet: '"Very solid reference material. I keep it on my desk while working. The only issue is that chapter 3 feels a bit..."',
-      status: 'Published',
-      date: 'Oct 15, 2025'
-    }
-  ];
+  // Strictly using your backend interface
+  reviews: Reviews[] = [];
 
-  // Slide-over state
   slideOverVisible = false;
-  selectedReview: Review | null = null;
+  selectedReview: Reviews | null = null;
 
-  // Toast
   toastMessage: string | null = null;
   toastType: 'success' | 'danger' | 'warning' = 'success';
   toastVisible = false;
 
-  // Smooth scroll
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private authService: AuthService,
+    private reviewsService: ReviewsService
+  ) {}
+
+  ngOnInit(): void {
+    this.reviewsService.getAllReviews().subscribe({
+      next: (data: Reviews[]) => {
+        this.reviews = data; // Directly assigning backend data
+      },
+      error: (err) => console.error('Failed to load reviews:', err)
+    });
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -119,21 +84,8 @@ export class ContentModerationComponent implements AfterViewInit, OnDestroy {
   }
 
   private initEntryAnimations(): void {
-    gsap.from('.gsap-slide', {
-      y: 20,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.1,
-      ease: 'power3.out',
-      delay: 0.1
-    });
-    gsap.from('.gsap-fade', {
-      y: 30,
-      opacity: 0,
-      duration: 1,
-      ease: 'power3.out',
-      delay: 0.3
-    });
+    gsap.from('.gsap-slide', { y: 20, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out', delay: 0.1 });
+    gsap.from('.gsap-fade', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.3 });
   }
 
   private showToast(message: string, type: 'success' | 'danger' | 'warning' = 'success'): void {
@@ -145,10 +97,7 @@ export class ContentModerationComponent implements AfterViewInit, OnDestroy {
 
     setTimeout(() => {
       gsap.to('.toast', {
-        x: 120,
-        opacity: 0,
-        duration: 0.4,
-        ease: 'power3.in',
+        x: 120, opacity: 0, duration: 0.4, ease: 'power3.in',
         onComplete: () => {
           this.toastVisible = false;
           this.toastMessage = null;
@@ -157,38 +106,19 @@ export class ContentModerationComponent implements AfterViewInit, OnDestroy {
     }, 3500);
   }
 
-  // Computed properties for metrics
-  get pendingCount(): number {
-    return this.reviews.filter(r => r.status === 'Pending').length;
-  }
-
-  get flaggedCount(): number {
-    return this.reviews.filter(r => r.status === 'Flagged').length;
-  }
-
-  get publishedCount(): number {
-    return this.reviews.filter(r => r.status === 'Published').length;
-  }
+  // --- Adjusted Metrics for pure review data ---
+  get totalReviews(): number { return this.reviews.length; }
+  get fiveStarCount(): number { return this.reviews.filter(r => r.rating === 5).length; }
+  get criticalCount(): number { return this.reviews.filter(r => r.rating === 1).length; }
 
   get avgRating(): number {
-    const published = this.reviews.filter(r => r.status === 'Published');
-    if (published.length === 0) return 0;
-    const sum = published.reduce((acc, r) => acc + r.rating, 0);
-    return sum / published.length;
+    if (this.reviews.length === 0) return 0;
+    const sum = this.reviews.reduce((acc, r) => acc + r.rating, 0);
+    return sum / this.reviews.length;
   }
 
-  get alertCount(): number {
-    return this.pendingCount + this.flaggedCount;
-  }
-
-  // Filtered reviews based on dropdowns
-  get filteredReviews(): Review[] {
+  get filteredReviews(): Reviews[] {
     return this.reviews.filter(review => {
-      // Status filter
-      if (this.statusFilter !== 'All Statuses' && review.status !== this.statusFilter) {
-        return false;
-      }
-      // Rating filter (simplified)
       if (this.ratingFilter !== 'All Ratings') {
         if (this.ratingFilter === '1 Star (Critical)' && review.rating !== 1) return false;
         if (this.ratingFilter === '2-4 Stars' && (review.rating < 2 || review.rating > 4)) return false;
@@ -198,7 +128,7 @@ export class ContentModerationComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  openModerationPanel(review: Review): void {
+  openModerationPanel(review: Reviews): void {
     this.selectedReview = { ...review };
     this.slideOverVisible = true;
   }
@@ -207,56 +137,27 @@ export class ContentModerationComponent implements AfterViewInit, OnDestroy {
     this.slideOverVisible = false;
     this.selectedReview = null;
   }
-
-  updateReviewStatus(newStatus: Review['status']): void {
+  deleteReview(): void {
     if (!this.selectedReview) return;
-
+    
     const reviewId = this.selectedReview.id;
-    const index = this.reviews.findIndex(r => r.id === reviewId);
-    if (index === -1) return;
-
-    // Simulate network delay
-    setTimeout(() => {
-      this.reviews[index].status = newStatus;
-
-      let toastMsg = '';
-      let toastType: 'success' | 'danger' | 'warning' = 'success';
-
-      switch (newStatus) {
-        case 'Published':
-          toastMsg = 'Review approved and published to the catalog.';
-          break;
-        case 'Flagged':
-          toastMsg = 'Review flagged for secondary supervisor audit.';
-          toastType = 'warning';
-          break;
-        case 'Removed':
-          toastMsg = 'Content deleted. Policy violation logged on user profile.';
-          toastType = 'danger';
-          break;
-        default:
-          toastMsg = `Review status updated to ${newStatus}.`;
+    this.reviewsService.deleteReview(reviewId).subscribe({
+      next: () => {
+        this.reviews = this.reviews.filter(r => r.id !== reviewId);
+        this.showToast('Content successfully deleted from the database.', 'danger');
+        this.closeSlideOver();
+      },
+      error: (err) => {
+        console.error('Failed to delete review:', err);
+        this.showToast('Failed to delete content.', 'danger');
       }
-
-      this.showToast(toastMsg, toastType);
-      this.closeSlideOver();
-    }, 300);
+    });
   }
 
-  getStars(rating: number): string {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  keepReview(): void {
+    this.showToast('Review marked as clear.', 'success');
+    this.closeSlideOver();
   }
-
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'Published': return 'status-published';
-      case 'Pending': return 'status-pending';
-      case 'Flagged': return 'status-flagged';
-      case 'Removed': return 'status-removed';
-      default: return '';
-    }
-  }
-
   getToastIcon(): string {
     switch (this.toastType) {
       case 'success': return '✓';

@@ -4,6 +4,7 @@ import { Book } from '../Models/book';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment.development';
+import { EditBook } from '../Models/edit-book';
 
 @Injectable({
   providedIn: 'root',
@@ -19,8 +20,6 @@ export class BookService {
       console.log("Serving all books from cache! 🚀");
       return of(this.cachedBooks);
     }
-
-    console.log("Fetching all books from Database... 🐢");
     return this.http.get<Book[]>(`${environment.apiUrl}/book`).pipe(
       tap((books) => {
         this.cachedBooks = books;
@@ -33,8 +32,6 @@ export class BookService {
       console.log(`Serving category ${categoryId} from cache! 🚀`);
       return of(this.cachedCategoryBooks[categoryId]);
     }
-
-    console.log(`Fetching category ${categoryId} from Database... 🐢`);
     return this.http.get<Book[]>(`${environment.apiUrl}/book/category/${categoryId}`).pipe(
       tap((books) => {
         this.cachedCategoryBooks[categoryId] = books; 
@@ -52,7 +49,11 @@ export class BookService {
     this.cachedCategoryBooks = {};
   }
   addBook(bookData: any): Observable<Book> {
-    return this.http.post<Book>(`${environment.apiUrl}/book`, bookData).pipe(
+    const payloadForBackend = {
+      ...bookData, 
+      category: { id: Number(bookData.category) } 
+    };
+    return this.http.post<Book>(`${environment.apiUrl}/book`, payloadForBackend).pipe(
       tap(() => {
         console.log("New book added! Wiping cache to fetch fresh data.");
         this.clearCache(); 
@@ -64,6 +65,14 @@ export class BookService {
     return this.http.delete<void>(`${environment.apiUrl}/book/${bookId}`).pipe(
       tap(() => {
         console.log("Book deleted! Wiping cache.");
+        this.clearCache(); 
+      })
+    );
+  }
+  editBook(bookId: number, bookData: EditBook): Observable<Book> {
+    return this.http.put<Book>(`${environment.apiUrl}/book/${bookId}`, bookData).pipe(
+      tap(() => {
+        // console.log("Book updated! Wiping cache.");
         this.clearCache(); 
       })
     );

@@ -45,10 +45,10 @@
         </div>
 
         <div class="input-group">
-          <select formControlName="genre" required>
+          <select formControlName="category" required>
             <option value="" disabled selected hidden></option>
-            <option *ngFor="let genre of Categories" [value]="genre.id">
-              {{ genre.name }}
+            <option *ngFor="let cate of Categories" value="{{cate.id}}">
+              {{ cate.name }}
             </option>
           </select>
           <label>Primary Genre</label>

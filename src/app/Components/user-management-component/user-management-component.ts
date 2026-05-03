@@ -1,100 +1,47 @@
 // user-management.component.ts
-import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import gsap from 'gsap';
 import Lenis from '@studio-freight/lenis';
+import { AuthService } from '../../Services/auth-service';
+import { User } from '../../Models/user';
 
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: 'Customer' | 'Publisher' | 'Admin';
-  status: 'Active' | 'Suspended';
-  ordersPlaced: number;
-  reviewsWritten: number;
-  registrationDate: string;
-  avatarInitials: string;
-}
+
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule, DecimalPipe, FormsModule],
-  templateUrl: './user-management-component.html',
+templateUrl: './user-management-component.html',
   styleUrls: ['./user-management-component.css']
 })
-export class UserManagementComponent implements AfterViewInit, OnDestroy {
+export class UserManagementComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild('globalSearch') globalSearch!: ElementRef<HTMLInputElement>;
-
-  users: User[] = [
-    {
-      id: 'UID1042',
-      firstName: 'Marcus',
-      lastName: 'Chen',
-      email: 'marcus.c@example.com',
-      role: 'Customer',
-      status: 'Active',
-      ordersPlaced: 12,
-      reviewsWritten: 4,
-      registrationDate: 'Jan 14, 2024',
-      avatarInitials: 'MC'
-    },
-    {
-      id: 'UID1043',
-      firstName: 'Elena',
-      lastName: 'Rostov',
-      email: 'elena.r@studio.net',
-      role: 'Publisher',
-      status: 'Active',
-      ordersPlaced: 45,
-      reviewsWritten: 12,
-      registrationDate: 'Nov 02, 2023',
-      avatarInitials: 'ER'
-    },
-    {
-      id: 'UID1044',
-      firstName: 'David',
-      lastName: 'Alistair',
-      email: 'david.a@mail.com',
-      role: 'Customer',
-      status: 'Suspended',
-      ordersPlaced: 0,
-      reviewsWritten: 0,
-      registrationDate: 'Oct 10, 2025',
-      avatarInitials: 'DA'
-    },
-    {
-      id: 'UID0001',
-      firstName: 'System',
-      lastName: 'Admin',
-      email: 'admin@athena.io',
-      role: 'Admin',
-      status: 'Active',
-      ordersPlaced: 0,
-      reviewsWritten: 0,
-      registrationDate: 'Jan 01, 2023',
-      avatarInitials: 'SA'
-    }
-  ];
-
-  // Slide-over state
+  users: User[] = [];
   slideOverVisible = false;
   selectedUser: User | null = null;
   newRole: User['role'] = 'Customer';
+  RoleOptions: User['role'][] = ['ADMIN', 'PUBLISHER', 'USER'];
 
   // Toast
   toastMessage: string | null = null;
   toastType: 'success' | 'danger' | 'info' = 'success';
   toastVisible = false;
 
-  // Smooth scroll
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+  private authService: AuthService
+) {}
+  ngOnInit(): void {
+    this.authService.getAllUsers().subscribe({
+      next: (users) => this.users = users,
+      error: (err) => console.error('Failed to load users:', err)
+    });
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -103,6 +50,7 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
       this.initEntryAnimations();
     }
   }
+  
 
   ngOnDestroy(): void {
     if (this.rafId) cancelAnimationFrame(this.rafId);
@@ -173,17 +121,23 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
   get totalRegistered(): number {
     return this.users.length + 3488; // base mockup number
   }
-
-  get activeUsers(): number {
-    return this.users.filter(u => u.status === 'Active').length;
+  getActiveStatusCount():number{
+    return this.users.filter(u=>u.enabled ==true).length
   }
+  getActiveStatus(user: User):string{
+    return user.enabled ? 'Active' : 'Inactive';
+  }
+
+  // get activeUsers(): number {
+  //   return this.users.filter(u => u.status === 'Active').length;
+  // }
 
   get publisherCount(): number {
-    return this.users.filter(u => u.role === 'Publisher').length;
+    return this.users.filter(u => u.role === 'PUBLISHER').length;
   }
-
+  
   get suspendedCount(): number {
-    return this.users.filter(u => u.status === 'Suspended').length + 11; // matching mockup
+    return this.users.filter(u => !u.enabled).length; // matching mockup
   }
 
   openUserPanel(user: User): void {
@@ -215,8 +169,8 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
     const index = this.users.findIndex(u => u.id === user.id);
     if (index === -1) return;
 
-    const newStatus: User['status'] = user.status === 'Active' ? 'Suspended' : 'Active';
-    this.users[index].status = newStatus;
+    const newStatus: string = this.getActiveStatus(user) === 'Active' ? 'Suspended' : 'Active';
+    this.users[index].enabled = !this.users[index].enabled;
 
     const message = newStatus === 'Active'
       ? `Access restored for user ${user.id}.`
@@ -224,6 +178,23 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
 
     this.showToast(message, newStatus === 'Active' ? 'success' : 'danger');
     this.closeSlideOver();
+  }
+  UpdateUserRole(): void {
+    if (!this.selectedUser) return;
+    const userId = this.selectedUser.id;
+    this.authService.editUserRole(userId, this.newRole).subscribe({
+      next: () => {
+        const index = this.users.findIndex(u => u.id === userId);
+        if (index !== -1) {
+          this.users[index].role = this.newRole;
+        }
+        this.showToast(`Role permissions for ${userId} updated to ${this.newRole}.`, 'info');
+      },
+      error: (err) => {
+        console.error('Failed to update user role:', err);
+        this.showToast(`Failed to update role for ${userId}.`, 'danger');
+      }
+    });
   }
 
   canToggleAccess(): boolean {
@@ -233,13 +204,13 @@ export class UserManagementComponent implements AfterViewInit, OnDestroy {
   getToggleButtonText(): string {
     if (!this.selectedUser) return '';
     if (this.selectedUser.role === 'Admin') return 'System Lock (Immutable)';
-    return this.selectedUser.status === 'Active' ? 'Suspend Account' : 'Reactivate Account';
+    return this.getActiveStatus(this.selectedUser) === 'Active' ? 'Suspend Account' : 'Reactivate Account';
   }
 
   getToggleButtonClass(): string {
     if (!this.selectedUser) return 'btn';
     if (this.selectedUser.role === 'Admin') return 'btn';
-    return this.selectedUser.status === 'Active' ? 'btn btn-danger' : 'btn btn-success';
+    return this.getActiveStatus(this.selectedUser) === 'Active' ? 'btn btn-danger' : 'btn btn-success';
   }
 
   getRoleClass(role: string): string {

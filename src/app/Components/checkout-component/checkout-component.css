@@ -1,0 +1,302 @@
+:root {
+  --bg: #000000;
+  --surface: #0A0A0A;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --text: #EDEDED;
+  --text-muted: #888888;
+  --accent: #B01E23;
+  --success: #10b981;
+}
+
+.payment-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg);
+}
+
+/* =========================================
+   3D CARD VISUALIZER
+   ========================================= */
+.card-visual-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #1a1a1a 0%, var(--bg) 70%);
+  border-right: 1px solid var(--surface-border);
+  padding: 2rem;
+}
+
+/* The camera perspective container */
+.card-scene {
+  width: 400px;
+  height: 250px;
+  perspective: 1000px; /* Gives the 3D depth effect */
+}
+
+/* The object being flipped */
+.card-object {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+/* Triggered by the CVV focus in Angular */
+.card-scene.is-flipped .card-object {
+  transform: rotateY(180deg);
+}
+
+/* Base styles for both front and back faces */
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  backface-visibility: hidden; /* Hides the back of the element when turned away */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  background: linear-gradient(135deg, #111 0%, #050505 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Front Face Styling --- */
+.card-front {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-glass-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.card-logo {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 4px;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.card-chip {
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(135deg, #d4af37 0%, #aa8222 100%);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-chip::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; width: 100%; height: 1px; background: rgba(0,0,0,0.2);
+}
+
+.card-number {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  margin-top: 1rem;
+}
+
+.card-details {
+  display: flex;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+
+.card-details span {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.card-details div {
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+/* --- Back Face Styling --- */
+.card-back {
+  transform: rotateY(180deg); /* Start it flipped */
+  padding-top: 2rem;
+}
+
+.magnetic-stripe {
+  width: 100%;
+  height: 50px;
+  background: #000;
+  margin-bottom: 2rem;
+}
+
+.signature-strip {
+  background: #eee;
+  height: 40px;
+  margin: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.signature {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: #333;
+  padding-left: 10px;
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+.cvv-display {
+  background: #fff;
+  color: #000;
+  padding: 5px 15px;
+  font-family: monospace;
+  font-weight: bold;
+  letter-spacing: 2px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.card-back-text {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  padding: 2rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* =========================================
+   FORM SECTION
+   ========================================= */
+.form-section {
+  padding: 0 15%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-header {
+  margin-bottom: 3rem;
+}
+
+.form-header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 3.5rem;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.form-header h1 span {
+  color: var(--accent);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  text-transform: lowercase;
+}
+
+.form-header p {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+/* Floating Label Inputs */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.input-group input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--text);
+  padding: 10px 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group label {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: 0.3s ease all;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.75rem;
+}
+
+.input-group input:focus, 
+.input-group input:not(:placeholder-shown) {
+  border-bottom-color: var(--accent);
+}
+
+.input-group input:focus ~ label, 
+.input-group input:not(:placeholder-shown) ~ label {
+  top: -15px;
+  font-size: 0.65rem;
+  color: var(--accent);
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 1.2rem;
+  font-family: 'Space Grotesk', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: 0.3s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--text);
+}
+
+.submit-btn:disabled {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--surface-border);
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .payment-container { grid-template-columns: 1fr; }
+  .card-visual-section { padding: 4rem 2rem; border-right: none; border-bottom: 1px solid var(--surface-border); }
+  .form-section { padding: 4rem 10%; }
+}
+
+@media (max-width: 600px) {
+  .card-scene { width: 100%; max-width: 350px; height: 220px; }
+  .card-number { font-size: 1.4rem; }
+}

@@ -12,7 +12,8 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./navbar-component.css']
 })
 export class NavbarComponent implements OnInit,OnChanges {
-  public isLoggedIn: boolean = false;
+  public isLoggedIn: any
+  private isAdmin: any
   constructor(private authService: AuthService) { 
     
   }
@@ -22,10 +23,17 @@ export class NavbarComponent implements OnInit,OnChanges {
     }
   }
   ngOnInit(): void {
-    this.isLoggedIn=this.authService.isLoggedIn();
+    this.authService.isLoggedIn().subscribe((loggedIn) => {
+      this.isLoggedIn = loggedIn;
+    });
+    this.authService.isAdmin().subscribe((admin) => {
+      this.isAdmin = admin;
+    });
   }
   logout(): void {
     this.authService.logout();
-    this.isLoggedIn = false;
+  }
+  get IsAdmin(): boolean {
+    return this.isAdmin;
   }
 }

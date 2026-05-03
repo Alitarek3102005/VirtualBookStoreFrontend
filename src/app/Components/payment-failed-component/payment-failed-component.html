@@ -1,0 +1,40 @@
+<!-- Ambient Animated Background -->
+<div class="ambient-background">
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+</div>
+
+<main class="failed-viewport">
+  <div class="premium-glass-card">
+    
+    <!-- Glowing Error Icon -->
+    <div class="icon-glow-wrapper">
+      <div class="pulse-ring"></div>
+      <div class="icon-inner">
+        <svg class="error-svg" viewBox="0 0 52 52">
+          <circle class="svg-circle" cx="26" cy="26" r="25" fill="none"/>
+          <path class="svg-cross-path" fill="none" d="M16 16 36 36 M36 16 16 36"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Elegant Typography -->
+    <div class="message-content">
+      <h1 class="reveal-item gradient-text">Authorization Failed</h1>
+      <p class="reveal-item sub-text">Your secure transaction was declined. Please verify your payment credentials or contact your financial provider.</p>
+    </div>
+
+    <!-- Premium Buttons -->
+    <div class="action-footer reveal-item">
+      <button class="btn-premium" (click)="retryPayment()">
+        <span class="btn-text">Retry Transaction</span>
+        <span class="btn-icon">↺</span>
+      </button>
+      
+      <button class="btn-ghost" (click)="returnToCart()">
+        Return to Cart
+      </button>
+    </div>
+
+  </div>
+</main>

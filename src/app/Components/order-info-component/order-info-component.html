@@ -1,0 +1,127 @@
+<div class="noise-overlay"></div>
+
+<!-- Only show UI when the order data has successfully loaded -->
+<div class="logistics-container" *ngIf="order">
+  
+  <header class="workspace-header">
+    <div class="breadcrumbs">
+      <a href="/orders">Global Orders</a>
+      <span class="divider">/</span>
+      <span class="active-crumb">Manifest ORD-00{{ order.id }}</span>
+    </div>
+    <div class="header-actions no-print">
+      <button class="btn btn-primary" (click)="triggerPrint()">
+        <span *ngIf="!isPrinting">Export Secure PDF</span>
+        <span class="spinner" *ngIf="isPrinting"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    
+    <!-- LEFT PANEL: Order Meta Data -->
+    <section class="tracking-panel">
+      
+      <div class="tracker-status">
+        <div class="status-meta">
+          <span class="label">Current Status</span>
+          <h2 class="eta-text" [ngStyle]="{'color': order.status === 'PENDING' ? 'var(--warning)' : 'var(--success)'}">
+            {{ order.status }}
+          </h2>
+        </div>
+        <div class="status-indicator">
+          <div class="pulse-ring" *ngIf="order.status === 'PENDING'"></div>
+          <span class="live-badge">SYSTEM UPDATED</span>
+        </div>
+      </div>
+
+      <div class="routing-details">
+        <div class="data-block">
+          <span class="data-label">System Entity (Reader)</span>
+          <span class="data-value highlight">UID-{{ order.readerId | number:'3.0-0' }}</span>
+        </div>
+        <div class="data-block">
+          <span class="data-label">Origin Cart ID</span>
+          <span class="data-value">CRT-{{ order.cartId | number:'3.0-0' }}</span>
+        </div>
+        <div class="data-block">
+          <span class="data-label">Creation Timestamp</span>
+          <span class="data-value">{{ order.createdAt | date:'medium' }}</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Glassmorphism Receipt -->
+    <section class="receipt-panel">
+      <div class="receipt-card">
+        
+        <div class="receipt-header">
+          <h3>ATHENA <span>SYSTEMS</span></h3>
+          <p>AUTHORIZED FINANCIAL MANIFEST</p>
+          <div class="receipt-id">ORD-00{{ order.id }}</div>
+        </div>
+
+        <div class="customer-block">
+          <span class="label">Billed To Network ID:</span>
+          <div class="value">Reader Identity [{{ order.readerId }}]</div>
+          <div class="value small">Last Sync: {{ order.updatedAt | date:'short' }}</div>
+        </div>
+
+        <!-- Order Items Loop -->
+        <div class="receipt-items">
+          <div class="item-row" *ngFor="let item of order.orderItems">
+            
+            <!-- When the book data is successfully fetched -->
+            <ng-container *ngIf="getBookDetails(item.bookId) as book; else loadingBook">
+              <img [src]="book.imageUrl" alt="Cover" class="book-thumbnail">
+              <div class="item-name">
+                <span class="qty">{{ item.quantity }}x</span>
+                {{ book.title | uppercase }}
+                <div class="sku">BY {{ book.author | uppercase }}</div>
+                <div class="sku" style="opacity: 0.5;">UID: {{ book.id }} | CATEGORY: {{ book.categoryName | uppercase }}</div>
+              </div>
+            </ng-container>
+
+            <!-- Loading fallback before the secondary HTTP request finishes -->
+            <ng-template #loadingBook>
+              <div class="item-thumbnail-placeholder"></div>
+              <div class="item-name">
+                <span class="qty">{{ item.quantity }}x</span>
+                FETCHING VOLUME DATA...
+                <div class="sku">Waiting for database...</div>
+              </div>
+            </ng-template>
+
+            <div class="item-dots"></div>
+            <div class="item-price">${{ item.price.toFixed(2) }}</div>
+          </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="receipt-totals">
+          <div class="total-row grand">
+            <span>NET CLEARANCE</span>
+            <div class="item-dots"></div>
+            <span class="accent-text">${{ order.totalPrice.toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <!-- Footer & Barcode -->
+        <div class="receipt-footer">
+          <div class="auth-code">STATUS: {{ order.status }}</div>
+          <div class="barcode"></div>
+          <div class="barcode-text">ORD-00{{ order.id }} // UID-{{ order.readerId }}</div>
+        </div>
+        <button class="payment-button" (click)="processPayment()">Process Payment</button>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Loading state for the main order -->
+<div *ngIf="!order" style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+  <span class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></span>
+</div>

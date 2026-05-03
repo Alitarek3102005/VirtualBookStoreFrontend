@@ -24,7 +24,7 @@ export class AddBookComponent implements OnInit {
       title: string = '';
       author:string = '';
       publisher_id!:number;
-      genre!: number;
+      category!: number;
       price: number = 0;
       quantity: number = 0; 
       description: string = '';
@@ -42,17 +42,16 @@ export class AddBookComponent implements OnInit {
     this.bookForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(200)]],
       author: ['', Validators.required],
-      publisher_id: ['', Validators.required], // Foreign Key
-      genre: ['', Validators.required],
+      publisher_id: ['', Validators.required], 
+      category: ['', Validators.required],
       price: ['', [Validators.required, Validators.min(0.01)]],
-      quantity: ['', [Validators.required, Validators.min(0)]], // Maps to Inventory
+      quantity: ['', [Validators.required, Validators.min(0)]],
       description: ['', Validators.required],
       coverImage: [null]
     });
     this.authService.getPublisherUsers().subscribe(users => {
       this.publisherUsers = users;
     });
-    // console.log("Fetched publisher users:", this.publisherUsers);
     this.categoryService.getCategories().subscribe(categories => {
       this.Categories = categories;
     });
@@ -63,8 +62,6 @@ export class AddBookComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.bookForm.patchValue({ coverImage: file });
-      
-      // Create image preview
       const reader = new FileReader();
       reader.onload = (e) => this.coverImagePreview = e.target?.result || null;
       reader.readAsDataURL(file);
@@ -76,15 +73,12 @@ export class AddBookComponent implements OnInit {
       this.bookForm.markAllAsTouched();
       return;
     }
-
-
     this.isSubmitting = true;
-
     this.submitedData = {
       title: this.bookForm.value.title,
       author: this.bookForm.value.author,
       publisher_id: this.bookForm.value.publisher_id,
-      genre: this.bookForm.value.genre,
+      category: this.bookForm.value.category,
       price: this.bookForm.value.price,
       quantity: this.bookForm.value.quantity,
       description: this.bookForm.value.description

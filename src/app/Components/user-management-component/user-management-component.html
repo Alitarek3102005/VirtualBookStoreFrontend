@@ -18,9 +18,9 @@
 
   <div class="slide-body" *ngIf="selectedUser">
     <div class="profile-header">
-      <div class="profile-avatar">{{ selectedUser.avatarInitials }}</div>
+      <!-- <div class="profile-avatar">{{ selectedUser.avatarInitials }}</div> -->
       <div>
-        <div class="profile-name">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</div>
+        <div class="profile-name">{{selectedUser.username}}</div>
         <div class="profile-id">ID: {{ selectedUser.id }}</div>
       </div>
     </div>
@@ -34,14 +34,14 @@
     <div class="detail-block">
       <span class="detail-label">Platform Engagement</span>
       <div class="stat-grid">
-        <div class="stat-item">
+        <!-- <div class="stat-item">
           <span class="stat-value">{{ selectedUser.ordersPlaced }}</span>
           <span class="stat-name">Orders Placed</span>
-        </div>
-        <div class="stat-item">
+        </div> -->
+        <!-- <div class="stat-item">
           <span class="stat-value">{{ selectedUser.reviewsWritten }}</span>
           <span class="stat-name">Reviews Written</span>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -49,18 +49,19 @@
   <div class="security-controls" *ngIf="selectedUser">
     <div>
       <label class="form-label">System Role (Permissions)</label>
-      <select class="role-select" [(ngModel)]="newRole" (change)="onRoleChange()">
-        <option value="Customer">Standard Customer</option>
-        <option value="Publisher">Publisher / Author</option>
-        <option value="Admin">System Administrator</option>
+      <select style="border: 1px solid var(--border-color);" class="role-select" [(ngModel)]="newRole" (change)="onRoleChange()">
+        <option *ngFor="let role of RoleOptions" [value]="role">{{ role }}</option>
       </select>
     </div>
+    <button class="btn btn-primary" (click)="UpdateUserRole()">Update Role</button>
 
     <button class="btn" style="width: 100%; margin-top: 0.5rem;"
-            [class.btn-danger]="selectedUser.status === 'Active' && selectedUser.role !== 'Admin'"
-            [class.btn-success]="selectedUser.status === 'Suspended' && selectedUser.role !== 'Admin'"
+            [class.btn-danger]="getActiveStatus(selectedUser) === 'Active' && selectedUser.role !== 'Admin'"
+            [class.btn-success]="getActiveStatus(selectedUser) === 'Suspended' && selectedUser.role !== 'Admin'"
             [disabled]="selectedUser.role === 'Admin'"
-            (click)="toggleAccountAccess()">
+            (click)="toggleAccountAccess()"
+            
+            >
       <span class="spinner"></span>
       <span class="btn-text">{{ getToggleButtonText() }}</span>
     </button>
@@ -75,17 +76,20 @@
   <div class="nav-menu">
     <div class="nav-section">
       <div class="nav-title">Analytics</div>
-      <a routerLink="/admin" class="nav-link" routerLinkActive="active">Overview</a>
+      <a routerLink="/admin" class="nav-link active" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Overview</a>
+      <a routerLink="/admin/reports" class="nav-link">Revenue Reports</a>
     </div>
     <div class="nav-section">
       <div class="nav-title">Operations</div>
-      <a routerLink="/admin/orders" class="nav-link">Order Operations</a>
-      <a routerLink="/admin/inventory" class="nav-link">Inventory Control</a>
+      <a routerLink="/admin/orders" class="nav-link">Order Fulfillment <span class="badge">12</span></a>
+      <!-- <a routerLink="/admin/inventory" class="nav-link">Inventory Control <span class="badge" style="color: var(--danger); border: 1px solid rgba(239,68,68,0.3);">4 Low</span></a> -->
+      <a routerLink="/add-book" class="nav-link">Add New Book</a>
+      <a routerLink="/admin/catalog" class="nav-link">Catalog Management</a>
     </div>
     <div class="nav-section">
       <div class="nav-title">Administration</div>
-      <a routerLink="/admin/users" class="nav-link active" routerLinkActive="active">User Directory</a>
-      <a routerLink="/admin/logs" class="nav-link">System Logs</a>
+      <a routerLink="/admin/users" class="nav-link">User Directory</a>
+      <a routerLink="/admin/reviews" class="nav-link">Reviews</a>
     </div>
   </div>
 </aside>
@@ -107,11 +111,11 @@
     <div class="user-metrics gsap-slide">
       <div class="metric-box">
         <div class="metric-title">Total Registered</div>
-        <div class="metric-value">{{ totalRegistered | number:'1.0-0' }}</div>
+        <div class="metric-value">{{ users.length | number:'1.0-0' }}</div>
       </div>
       <div class="metric-box">
         <div class="metric-title">Active (30 Days)</div>
-        <div class="metric-value">{{ activeUsers }}</div>
+        <div class="metric-value">{{ getActiveStatusCount() }}</div>
       </div>
       <div class="metric-box">
         <div class="metric-title">Publisher Accounts</div>
@@ -139,16 +143,16 @@
             <tr *ngFor="let user of users">
               <td>
                 <div class="user-identity">
-                  <div class="avatar">{{ user.avatarInitials }}</div>
+                  <!-- <div class="avatar">{{ user.avatarInitials }}</div> -->
                   <div>
-                    <div class="td-name">{{ user.firstName }} {{ user.lastName }}</div>
+                    <div class="td-name">{{ user.fullName }}</div>
                     <span class="td-sub">{{ user.email }}</span>
                   </div>
                 </div>
               </td>
               <td><span [ngClass]="getRoleClass(user.role)">{{ user.role }}</span></td>
-              <td><span [ngClass]="getStatusClass(user.status)">{{ user.status }}</span></td>
-              <td>{{ user.registrationDate }}</td>
+              <td><span [ngClass]="getStatusClass(getActiveStatus(user))">{{ getActiveStatus(user) }}</span></td>
+              <td>{{ user.email }}</td>
               <td><button class="btn" (click)="openUserPanel(user)">Manage</button></td>
             </tr>
           </tbody>

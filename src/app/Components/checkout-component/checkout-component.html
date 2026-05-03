@@ -1,0 +1,83 @@
+<div class="noise-overlay"></div>
+
+<main class="payment-container">
+  
+  <section class="card-visual-section">
+    <div class="card-scene" [class.is-flipped]="isCardFlipped">
+      <div class="card-object">
+        
+        <div class="card-face card-front">
+          <div class="card-glass-overlay"></div>
+          <div class="card-logo">ATHENA</div>
+          <div class="card-chip"></div>
+          <div class="card-number">{{ displayCardNumber }}</div>
+          <div class="card-details">
+            <div class="card-name-group">
+              <span>Cardholder</span>
+              <div>{{ displayCardName | uppercase }}</div>
+            </div>
+            <div class="card-expiry-group">
+              <span>Expires</span>
+              <div>{{ displayExpiry }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-face card-back">
+          <div class="magnetic-stripe"></div>
+          <div class="signature-strip">
+            <span class="signature">{{ displayCardName }}</span>
+            <div class="cvv-display">{{ displayCvv }}</div>
+          </div>
+          <div class="card-back-text">
+            Authorized signature required. This card remains the property of the issuer and must be returned upon request.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="form-header">
+      <h1>Secure <span>Checkout.</span></h1>
+      <p>Enter your credentials to finalize the authorization.</p>
+    </div>
+
+    <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="payment-form">
+      
+      <div class="input-group">
+        <input type="text" formControlName="cardName" placeholder=" " required autocomplete="off">
+        <label>Name on Card</label>
+      </div>
+
+      <div class="input-group">
+        <input type="text" formControlName="cardNumber" placeholder=" " maxlength="16" required autocomplete="off">
+        <label>Card Number</label>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <input type="text" formControlName="expiryMonth" placeholder=" " maxlength="2" required autocomplete="off">
+          <label>MM</label>
+        </div>
+        <div class="input-group">
+          <input type="text" formControlName="expiryYear" placeholder=" " maxlength="2" required autocomplete="off">
+          <label>YY</label>
+        </div>
+        <div class="input-group">
+          <input type="password" formControlName="cvv" placeholder=" " maxlength="4" required autocomplete="off"
+                 (focus)="onCvvFocus()" (blur)="onCvvBlur()">
+          <label>CVV / CVC</label>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isProcessing || paymentComplete">
+        <span *ngIf="!isProcessing && !paymentComplete">Authorize Payment</span>
+        <span *ngIf="isProcessing">Encrypting Transaction...</span>
+        <span *ngIf="paymentComplete" style="color: var(--success);">✓ Payment Successful</span>
+      </button>
+
+    </form>
+  </section>
+</main>

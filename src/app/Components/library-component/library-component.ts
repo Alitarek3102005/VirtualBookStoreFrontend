@@ -8,6 +8,8 @@ import { BookService } from '../../Services/book-service';
 import { Book } from '../../Models/book';
 import { CategoryService } from '../../Services/category-service';
 import { Category } from '../../Models/category';
+import { CartService } from '../../Services/cart-service';
+import { AuthService } from '../../Services/auth-service';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,32 +23,30 @@ gsap.registerPlugin(ScrollTrigger);
 export class LibraryComponent implements AfterViewInit, OnDestroy, OnInit {
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
-  
   public categories: Category[] = [];
-  
-  // 1. The Dictionary that the HTML reads from
   public booksByCategory: { [key: number]: Book[] } = {};
+  userId!: number | null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private bookService: BookService,
     private _router: Router,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private cartService: CartService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    // 2. Load all categories first
     this.categoryService.getCategories().subscribe(categories => {
       this.categories = categories;
       
-      // 3. Loop through every category and fill the shelves!
       this.categories.forEach(category => {
         this.bookService.getBookByCategory(category.id).subscribe(books => {
-          // Assign the books to the correct shelf ID in the dictionary
           this.booksByCategory[category.id] = books;
         });
       });
     });
+    this.userId = this.authService.getCurrentUserId();
   }
 
   ngAfterViewInit(): void {
@@ -61,22 +61,9 @@ export class LibraryComponent implements AfterViewInit, OnDestroy, OnInit {
     if (this.lenis) this.lenis.destroy();
   }
 
-  // ==========================================
-  // BUTTON ACTIONS
-  // ==========================================
-
-  addToCart(book: Book): void {
-    console.log(`Added to cart: ${book.title}`);
-  }
-
   viewDetails(bookId: number): void {
     this._router.navigateByUrl(`/product-details/${bookId}`);
   }
-
-  // ==========================================
-  // ANIMATION & SCROLL METHODS (No changes needed here!)
-  // ==========================================
-
   private initSmoothScroll(): void {
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     if (!isTouch) {
@@ -130,4 +117,22 @@ export class LibraryComponent implements AfterViewInit, OnDestroy, OnInit {
       });
     }
   }
+  trackByUniqueBookId(index: number, book: Book): number {
+    return book.id;
+  }
+  trackByUniqueCategoryId(index: number, category: Category): number {
+    return category.id;
+  }
+  addToCart(bookId: number, quantity: number): void {
+    this.cartService.addItemToCart(this.userId, bookId, quantity).subscribe(
+      () => {
+        alert(`Book with ID ${bookId} added to cart with quantity ${quantity}`);
+      },
+      (error) => {
+        console.error('Error adding book to cart:', error);
+          alert('Please log in to add items to your cart.');
+          this._router.navigate(['/login']);
+        
+        });
+      }
 }

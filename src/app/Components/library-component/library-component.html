@@ -33,7 +33,7 @@
           <p>{{ book.author }}</p>
           <div class="price-row">
             <span class="book-price">\${{ book.price }}</span>
-            <button class="add-btn" (click)="addToCart(book)">Add to Cart</button>
+            <button class="add-btn" (click)="addToCart(book.id, 1)">Add to Cart</button>
             <button class="add-btn" (click)="viewDetails(book.id)">Details</button>
           </div>
         </div>

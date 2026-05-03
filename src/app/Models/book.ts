@@ -7,4 +7,6 @@ export interface Book {
   imageUrl: string;
   stockQuantity: number; 
   categoryName: string;
+  publisherName: string;
+  quantity: number;
 }

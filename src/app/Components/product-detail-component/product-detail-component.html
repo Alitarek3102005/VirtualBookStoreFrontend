@@ -1,72 +1,135 @@
- <div class="noise-overlay"></div>
-    <main class="product-container">
-      <div class="product-visual">
-        <div class="sticky-wrapper">
-          <div class="book-cover gsap-fade">
-            <img src="{{ book.imageUrl }}" alt="The Silent Echo">
-          </div>
-        </div>
+<div class="noise-overlay"></div>
+<main class="product-container">
+  <div class="product-visual">
+    <div class="sticky-wrapper">
+      <div class="book-cover gsap-fade">
+        <img src="{{ book.imageUrl }}" alt="The Silent Echo">
       </div>
-      <div class="product-info">
-        <div class="breadcrumbs gsap-slide">
-          <a routerLink="/">Home</a> / <a routerLink="/catalog">Catalog</a> / {{ book.categoryName }} / <span>{{ book.title }}</span>
-        </div>
-        <div class="product-header gsap-slide">
-          <h1 class="product-title">{{ book.title }}</h1>
-          <h2 class="product-author">{{ book.author }}</h2>
+    </div>
+  </div>
+  
+  <div class="product-info">
+    <div class="back-btn-group gsap-slide">
+      <button class="back-btn" (click)="goBack()">
+        &larr; Back to Library
+      </button>
+      <button class="back-btn" (click)="deleteBook()"  *ngIf="isAdmin">Delete</button>
+      <button class="back-btn" (click)="editBook()"  *ngIf="isAdmin">Edit</button>
+    </div>
+    <div class="breadcrumbs gsap-slide">
+      <a routerLink="/">Home</a> / <a routerLink="/library">Library</a> / {{ book.categoryName }} / <span>{{ book.title }}</span>
+    </div>
+    
+    <div class="product-header gsap-slide">
+      <h1 class="product-title">{{ book.title }}</h1>
+      <h2 class="product-author">{{ book.author }}</h2>
+      <div class="meta-row">
+        <div class="genre-tag">{{ book.categoryName }}</div>
+        <div class="rating">★★★★<span>★</span> (4.2)</div>
+      </div>
+    </div>
+    <div class="product-desc gsap-slide">
+      <p>{{ book.description?.slice(0, 200) + '...' }}</p>
+      <br>
+      <p>{{ book.description?.slice(200) }}</p>
+    </div>
+    <div class="purchase-bar gsap-slide">
+      <!-- <div class="qty-selector">
+        <button class="qty-btn" (click)="decreaseQuantity(book)">-</button>
+        <span class="qty-num">{{ quantity }}</span>
+        <button class="qty-btn" (click)="increaseQuantity(book)">+</button>
+      </div> -->
+      <button class="add-to-cart magnetic" (click)="addToCart(book.id, 1)" #magneticBtn>
+        <span>Add to Library</span>
+        <span>{{ book.price | currency:'USD':'symbol' }}</span>
+      </button>
+    </div>
+    
+    <div class="reviews-section gsap-fade">
+      <div class="reviews-header">
+        <h2>Reader Reviews</h2>
+        <button class="write-review-btn" (click)="openReviewPopup()">Write a Review</button>
+      </div>
+      <div class="review-list">
+        
+        <div class="review-card" *ngFor="let review of reviews">
           
-          <div class="meta-row">
-            <div class="genre-tag">{{ book.categoryName }}</div>
-            <div class="rating">★★★★<span>★</span> (4.2)</div>
-          </div>
-        </div>
-        <div class="product-desc gsap-slide">
-          <p>{{ book.description?.slice(0, 200) + '...' }}</p>
-          <br>
-          <p>{{ book.description?.slice(200) }}</p>
-        </div>
-        <div class="purchase-bar gsap-slide">
-          <div class="qty-selector">
-            <button class="qty-btn" (click)="decreaseQuantity()">-</button>
-            <span class="qty-num">{{ quantity }}</span>
-            <button class="qty-btn" (click)="increaseQuantity()">+</button>
-          </div>
-          <button class="add-to-cart magnetic" #magneticBtn>
-            <span>Add to Library</span>
-            <span>{{ book.price | currency:'USD':'symbol' }}</span>
-          </button>
-        </div>
-        <div class="reviews-section gsap-fade">
-          <div class="reviews-header">
-            <h2>Reader Reviews</h2>
-            <button class="write-review-btn">Write a Review</button>
-          </div>
-          <div class="review-list">
-            <div class="review-card">
-              <div class="review-meta">
-                <div>
-                  <div class="reviewer-name">Marcus Chen</div>
-                  <div class="rating">★★★★★</div>
-                </div>
-                <div class="review-date">Oct 12, 2025</div>
-              </div>
-              <div class="review-text">
-                An absolute masterpiece of modern science fiction. Rostov perfectly balances hard scientific concepts with deep, emotional character development. I couldn't put it down once the relay went offline.
+          <div class="review-header-wrap">
+            <div class="review-meta">
+              <div>
+                <div class="reviewer-name">{{ review.userName }}</div>
+                <div class="rating"> {{ review.rating | stars }}</div>
               </div>
             </div>
-            <div class="review-card">
-              <div class="review-meta">
-                <div>
-                  <div class="reviewer-name">Sarah Jenkins</div>
-                  <div class="rating">★★★★<span>★</span></div>
-                </div>
-                <div class="review-date">Sep 28, 2025</div>
-              </div>
-              <div class="review-text">
-                The atmosphere is incredibly dense and cinematic. You really feel the isolation of the protagonist. Deducting one star because the technical jargon in chapter 4 slowed the pacing down a bit, but the ending was spectacular.
-              </div>
+            
+            <div class="review-actions" *ngIf="isAdmin || (username && username === review.userName)">
+              <button class="icon-btn" (click)="openEditReviewPopup(review)" title="Edit">✎</button>
+              <button class="icon-btn danger" (click)="deleteReview(review.id)" title="Delete">🗑</button>
             </div>
           </div>
+
+          <div class="review-text">
+            <p>{{ review.comment }}</p>
+          </div>
         </div>
+
       </div>
-    </main>
+    </div>
+  </div>
+</main>
+
+<div class="modal-backdrop" *ngIf="showReviewPopup" (click)="closeReviewPopup()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Submit Your <span>Review.</span></h3>
+      <button class="close-btn" (click)="closeReviewPopup()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="star-selector">
+        <span *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="setRating(star)"
+              (mouseenter)="hoverRating = star"
+              (mouseleave)="hoverRating = 0"
+              [class.active]="star <= (hoverRating || newReviewRating)">
+          ★
+        </span>
+      </div>
+      <div class="input-group">
+        <textarea [(ngModel)]="newReviewComment" placeholder=" "></textarea>
+        <label>Your thoughts on this volume</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-discard" (click)="closeReviewPopup()">Discard Changes</button>
+      <button class="btn-submit" (click)="submitReview()">Submit to Database</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showEditReviewPopup" (click)="closeEditReviewPopup()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit Your <span>Review.</span></h3>
+      <button class="close-btn" (click)="closeEditReviewPopup()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="star-selector">
+        <span *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="setEditRating(star)"
+              (mouseenter)="editHoverRating = star"
+              (mouseleave)="editHoverRating = 0"
+              [class.active]="star <= (editHoverRating || editReviewRating)">
+          ★
+        </span>
+      </div>
+      <div class="input-group">
+        <textarea [(ngModel)]="editReviewComment" placeholder=" "></textarea>
+        <label>Update your thoughts</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-discard" (click)="closeEditReviewPopup()">Discard Changes</button>
+      <button class="btn-submit" (click)="submitEditReview()">Update Database</button>
+    </div>
+  </div>
+</div>

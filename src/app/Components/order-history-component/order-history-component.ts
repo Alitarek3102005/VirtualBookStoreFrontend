@@ -1,9 +1,11 @@
-import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
+import { OrderService } from '../../Services/order-service';
+import { AuthService } from '../../Services/auth-service';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,22 +21,32 @@ interface Order {
   selector: 'app-order-history',
   standalone: true,
   imports: [RouterLink, CommonModule, DecimalPipe],
-  templateUrl: './order-history-component.html',
+templateUrl: './order-history-component.html',
   styleUrls: ['./order-history-component.css']
 })
-export class OrderHistoryComponent implements AfterViewInit, OnDestroy {
-  orders: Order[] = [
-    { id: 'ORD-88492A', date: 'Oct 12, 2025', itemCount: 2, total: 50.90, status: 'shipped' },
-    { id: 'ORD-88310B', date: 'Sep 28, 2025', itemCount: 1, total: 29.99, status: 'pending' },
-    { id: 'ORD-87104C', date: 'Aug 04, 2025', itemCount: 4, total: 145.00, status: 'delivered' },
-    { id: 'ORD-86992D', date: 'Jul 15, 2025', itemCount: 1, total: 18.50, status: 'delivered' },
-    { id: 'ORD-85221E', date: 'May 22, 2025', itemCount: 3, total: 84.00, status: 'delivered' }
-  ];
+export class OrderHistoryComponent implements AfterViewInit, OnDestroy, OnInit {
+  orders:any[] = [];
 
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
+  quantityOfItems: number = 0;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+  private orderService: OrderService,
+  private authService: AuthService
+) { }
+
+  ngOnInit(): void {
+    this.orderService.getOrderHistory(this.authService.getCurrentUserId() || 0).subscribe({
+      next: (orders) => {
+        this.orders = orders;
+      },
+      error: (err) => {
+        console.error('Error fetching order history:', err);
+        alert('An error occurred while fetching your order history. Please try again later.');
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -96,4 +108,16 @@ export class OrderHistoryComponent implements AfterViewInit, OnDestroy {
   trackById(index: number, order: Order): string {
     return order.id;
   }
+  getquantityOfItems(order: any): number {
+    let total = 0;
+    if (order.orderItems && Array.isArray(order.orderItems)) {
+      order.orderItems.forEach((item: any) => {
+        if (item.quantity) {
+          total += item.quantity;
+        }
+      });
+    }
+    return total;
+  }
 }
+  

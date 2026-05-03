@@ -17,6 +17,13 @@ import { ContentModerationComponent } from './Components/content-moderation-comp
 import { UserManagementComponent } from './Components/user-management-component/user-management-component';
 import { adminGuard } from './Guards/admin-guard';
 import { AddBookComponent } from './Components/add-book-component/add-book-component';
+import { CheckoutComponent } from './Components/checkout-component/checkout-component';
+import { EditBookComponent } from './Components/edit-book-component/edit-book-component';
+import { addBookGuardGuard } from './Guards/add-book-guard-guard';
+import { OrderInfoComponent } from './Components/order-info-component/order-info-component';
+import { CatalogManagementComponent } from './Components/catalog-management-component/catalog-management-component';
+import { PaymentSuccessComponent } from './Components/payment-success-component/payment-success-component';
+import { PaymentFailedComponent } from './Components/payment-failed-component/payment-failed-component';
 
 export const routes: Routes = [
     {path: '', component: AthenaArchiveComponent},
@@ -26,7 +33,7 @@ export const routes: Routes = [
     {path: "cart", component:CartComponent},
     {path: "library", component:LibraryComponent},
     {path: "order-detail/:id", component:OrderManifestComponent},
-    {path: "order-history/:id", component:OrderHistoryComponent},
+    {path: "order-history", component:OrderHistoryComponent},
     {path: "profile", component:ProfileComponent},
     {path: "submit-review/:id", component:SubmitReviewComponent},
     {path: "admin/inventory", component:VolumeEditorComponent,canActivate: [adminGuard]},
@@ -35,7 +42,13 @@ export const routes: Routes = [
     {path: "admin/reviews", component:ContentModerationComponent,canActivate: [adminGuard]},
     {path: "admin/users", component:UserManagementComponent,canActivate: [adminGuard]},
     {path: "logout", component:AuthComponent},
-    {path:"add-book",component : AddBookComponent,canActivate: [adminGuard]},
+    {path:"add-book",component : AddBookComponent,canActivate: [addBookGuardGuard]},
+    {path:"payment", component:CheckoutComponent},
+    {path:"edit-book/:id", component:EditBookComponent,canActivate: [adminGuard]},
+    {path:"order/:id",component:OrderInfoComponent},
+    {path:"admin/catalog",component:CatalogManagementComponent,canActivate: [adminGuard]},
+    {path:"success", component:PaymentSuccessComponent},
+    {path:"failed",component:PaymentFailedComponent},
     { path: '**', redirectTo: '' },
     
 ];

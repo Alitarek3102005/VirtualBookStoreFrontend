@@ -308,3 +308,25 @@
     top: 0;
   }
 }
+.continue-btn,
+.clear-btn{
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: rgba(229, 229, 229, 0.6);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.8rem 1.5rem;
+  transition: all 0.3s;
+}
+.continue-btn:hover,
+.clear-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.clear-btn {
+  margin-left: 1rem;
+}
+
