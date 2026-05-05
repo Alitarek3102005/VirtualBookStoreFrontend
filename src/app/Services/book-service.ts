@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Book } from '../Models/book';
 import { Observable, of } from 'rxjs';
@@ -77,4 +77,16 @@ export class BookService {
       })
     );
   }
+  getLowStockBooks(): Observable<Book[]> {
+    return this.http.get<Book[]>(`${environment.apiUrl}/book/lowstock`);
+  }
+  updateStock(bookId: number, quantity: number): Observable<Book> {
+    let queryParams = new HttpParams().set('quantity', quantity);
+    return this.http.put<Book>(`${environment.apiUrl}/book/${bookId}/updatequantity`, null, { params: queryParams }).pipe(
+      tap(() => {
+        console.log("Stock updated! Wiping cache.");
+        this.clearCache(); 
+      })
+    );
+}
 }

@@ -64,7 +64,7 @@
   <div class="slide-footer" #slideFooter>
     <ng-container *ngIf="slideOverType === 'restock'">
       <button class="btn" style="flex:1;" (click)="closeSlideOver()">Cancel</button>
-      <button class="btn btn-primary" style="flex:1;" id="save-restock" (click)="submitRestock()">
+      <button class="btn btn-primary" style="flex:1;" id="save-restock" (click)="submitRestock(slideOverData.id)">
         <span class="spinner"></span> <span class="btn-text">Save Changes</span>
       </button>
     </ng-container>
@@ -177,15 +177,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of inventoryItems">
+              <tr *ngFor="let item of lowStockItems">
                 <td>{{ item.title }} <span class="td-sub">ID: {{ item.id }} • {{ item.author }}</span></td>
                 <td>
-                  <span class="status-badge" [ngClass]="getStockStatusClass(item.stock)">
-                    {{ item.stock }}
+                  <span class="status-badge" [ngClass]="getStockStatusClass(item.quantity)">
+                    {{ item.quantity }}
                   </span>
                 </td>
                 <td>
-                  <button class="btn" [class.btn-danger]="item.status === 'critical'" (click)="openRestock(item)">
+                  <button class="btn" (click)="openRestock(item)">
                     Restock
                   </button>
                 </td>

@@ -1,10 +1,12 @@
-import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser, NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import gsap from 'gsap';
 import Lenis from '@studio-freight/lenis';
 import Chart from 'chart.js/auto';
+import { Book } from '../../Models/book';
+import { BookService } from '../../Services/book-service';
 
 interface InventoryItem {
   id: string;
@@ -30,7 +32,7 @@ interface OrderItem {
   templateUrl: './admin-dashboard-component.html',
   styleUrls: ['./admin-dashboard-component.css']
 })
-export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
+export class AdminDashboardComponent implements AfterViewInit, OnDestroy,OnInit {
   @ViewChild('globalSearch') globalSearch!: ElementRef<HTMLInputElement>;
   @ViewChild('exportBtn') exportBtn!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnText') btnText!: ElementRef<HTMLElement>;
@@ -40,34 +42,25 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
 
   private mainChart: Chart | null = null;
   private genreChart: Chart | null = null;
-
-  // Slide-over state
   slideOverVisible = false;
   slideOverData: any = null;
   slideOverType: 'restock' | 'order' = 'restock';
   restockQuantity = 1;
-
-  // Toast
   toastMessage: string | null = null;
   toastSuccess = true;
   toastVisible = false;
-
-  // KPI data
   kpis = {
     grossVolume: 42850,
     transactions: 1204,
     avgOrderValue: 35.58,
     inventoryAlerts: 4
   };
-
-  // Inventory data
   inventoryItems: InventoryItem[] = [
     { id: 'BK-109', title: 'The Silent Echo', author: 'Elena Rostov', stock: 2, status: 'critical' },
     { id: 'BK-204', title: 'Fading Light', author: 'Marcus Chen', stock: 0, status: 'critical' },
     { id: 'BK-088', title: 'Design Systems', author: 'Marcus Chen', stock: 8, status: 'warning' }
   ];
-
-  // Order feed data
+  lowStockItems!: Book[] ;
   orderItems: OrderItem[] = [
     { id: 'ORD-88492A', date: 'Oct 18, 14:32:01', customer: 'M. Chen', paymentMethod: 'Stripe •••• 4242', status: 'pending', amount: 50.90 },
     { id: 'ORD-88491B', date: 'Oct 18, 14:15:22', customer: 'S. Jenkins', paymentMethod: 'PayPal', status: 'shipped', amount: 24.00 },
@@ -77,8 +70,23 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
   private lenis: Lenis | null = null;
   private rafId: number | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private router: Router) {}
-
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+   private router: Router,
+   private bookService: BookService
+  ) {}
+  ngOnInit(): void {
+    this.getLowStockBooks();
+  }
+  getLowStockBooks() {
+    this.bookService.getLowStockBooks().subscribe({
+      next: (books) => {
+        this.lowStockItems = books;
+      },
+      error: (err) => {
+        console.error('Error fetching low stock books:', err);
+      }
+    });
+  }
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initSmoothScroll();
@@ -114,7 +122,6 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
   }
 
   private initCharts(): void {
-    // Main line chart
     const mainCtx = this.mainChartCanvas.nativeElement.getContext('2d')!;
     const gradient = mainCtx.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(176, 30, 35, 0.4)');
@@ -157,7 +164,6 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    // Genre doughnut chart
     const genreCtx = this.genreChartCanvas.nativeElement.getContext('2d')!;
     this.genreChart = new Chart(genreCtx, {
       type: 'doughnut',
@@ -238,7 +244,7 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
     }, 1500);
   }
 
-  openRestock(item: InventoryItem): void {
+  openRestock(item: Book): void {
     this.slideOverType = 'restock';
     this.slideOverData = item;
     this.restockQuantity = 1;
@@ -256,21 +262,12 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
     this.slideOverData = null;
   }
 
-  submitRestock(): void {
-    if (!this.restockQuantity || this.restockQuantity < 1) return;
-
-    const item = this.slideOverData as InventoryItem;
-    // Simulate saving
-    setTimeout(() => {
+  submitRestock(bookId: number): void {
+    this.bookService.updateStock(bookId, this.restockQuantity).subscribe(() => {
       this.closeSlideOver();
-      this.showToast(`${this.restockQuantity} units added to ${item.id} inventory.`);
-
-      const index = this.inventoryItems.findIndex(i => i.id === item.id);
-      if (index !== -1) {
-        this.inventoryItems[index].stock = this.restockQuantity;
-        this.inventoryItems[index].status = this.restockQuantity > 10 ? 'normal' : (this.restockQuantity > 5 ? 'warning' : 'critical');
-      }
-    }, 800);
+      this.showToast('Stock updated successfully.', true);
+    });
+    this.getLowStockBooks();
   }
 
   submitFulfill(): void {
@@ -300,5 +297,4 @@ export class AdminDashboardComponent implements AfterViewInit, OnDestroy {
       default: return '';
     }
   }
-  
 }
