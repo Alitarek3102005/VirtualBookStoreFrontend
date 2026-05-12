@@ -89,4 +89,18 @@ export class BookService {
       })
     );
 }
+  getUploadUrl(fileName: string, contentType: string): Observable<string> {
+    return this.http.get(`${environment.apiUrl}/media/upload-url`, {
+      params: { fileName, contentType },
+      responseType: 'text'
+    });
+  }
+
+  uploadDirectToS3(presignedUrl: string, file: File): Observable<any> {
+    return this.http.put(presignedUrl, file, {
+      headers: {
+        'Content-Type': file.type
+      }
+    });
+  }
 }

@@ -11,6 +11,9 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+     if (request.url.includes('amazonaws.com')) {
+       return next.handle(request); 
+  }
     const token = this.authService.getToken();
     if (token) {
       request = request.clone({
